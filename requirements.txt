@@ -1,0 +1,25 @@
+Werkzeug
+SQLAlchemy
+Flask_Caching
+Flask_SQLAlchemy
+click
+marshmallow
+Flask_Bcrypt
+flask_apispec
+Flask
+PyJWT
+Flask-JWT-Extended
+unicode_slugify
+Flask-Migrate
+gunicorn
+Flask-Cors
+psycopg2-binary
+flask-marshmallow
+
+# Testing
+pytest
+WebTest
+factory-boy
+
+# For python 3
+Faker
