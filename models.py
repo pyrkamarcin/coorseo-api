@@ -37,6 +37,8 @@ class Users(Model):
 
     email = Column(String(200), unique=True, nullable=False)
     name = Column(String(200), unique=True, nullable=False)
+    password = Column(String(100))
+
     first_name = Column(String(200))
     last_name = Column(String(200))
 

@@ -1,6 +1,7 @@
 import json
 
 from flask import Blueprint, request, jsonify, abort, make_response
+from flask_jwt_extended import jwt_required
 from flask_uuid import FlaskUUID
 from sqlalchemy import func
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
@@ -19,6 +20,7 @@ courses_schema = CoursesSchema(many=True)
 
 
 @mod.route('/', methods=['GET'])
+@jwt_required
 def get_all():
     return jsonify(courses_schema.dump(Courses.query.options().all()))
     # return jsonify(courses_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).options().all()))

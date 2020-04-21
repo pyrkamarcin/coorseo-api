@@ -18,6 +18,9 @@ flask-marshmallow
 marshmallow_sqlalchemy
 flask_uuid
 numpy
+flask-login
+flask_jwt
+passlib
 
 # Testing
 pytest
