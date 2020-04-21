@@ -252,7 +252,7 @@ class Reviews(Model):
 
     id = Column('review_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
 
-    description = Column(String(200), unique=True, nullable=False)
+    description = Column(String(200), nullable=False)
     created_on = Column(DateTime, server_default=func.now())
     updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
