@@ -10,6 +10,8 @@ from .views import courses
 from .views import platforms
 from .views import publishers
 from .views import profile
+from .views import ratings
+from .views import reviews
 
 from .models import db_session
 
@@ -26,6 +28,8 @@ app.register_blueprint(courses.mod)
 app.register_blueprint(platforms.mod)
 app.register_blueprint(publishers.mod)
 app.register_blueprint(profile.mod)
+app.register_blueprint(ratings.mod)
+app.register_blueprint(reviews.mod)
 
 
 @app.teardown_request

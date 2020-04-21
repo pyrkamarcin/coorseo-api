@@ -1,3 +1,5 @@
+import numpy as np
+
 from flask_marshmallow.fields import Hyperlinks, URLFor
 from flask_marshmallow.sqla import SQLAlchemySchema, auto_field, HyperlinkRelated
 from marshmallow import fields, pre_load, Schema
@@ -8,7 +10,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
     ForeignKey, func
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, json
 
 import uuid
 
@@ -50,11 +52,16 @@ class Users(Model):
 
 
 class UsersSchema(Schema):
+    class Meta:
+        ordered = True
+
     id = fields.UUID()
-    email = fields.String()
-    name = fields.String()
-    first_name = fields.String()
-    last_name = fields.String()
+
+    # email = fields.String()
+    # name = fields.String()
+    # first_name = fields.String()
+    # last_name = fields.String()
+
     _links = Hyperlinks(
         {"self": URLFor("courses.get", id="<id>"), "collection": URLFor("courses.get_all")}
     )
@@ -71,10 +78,10 @@ class Courses(Model):
     created_on = Column(DateTime, server_default=func.now())
     updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
-    platform_id = Column(UUID, ForeignKey('platforms.platform_id'), nullable=False)
+    platform_id = Column(UUID(as_uuid=True), ForeignKey('platforms.platform_id'), nullable=False)
     platform = relationship("Platforms", backref=backref("courses", lazy="dynamic"))
 
-    publisher_id = Column(UUID, ForeignKey('publishers.publisher_id'), nullable=False)
+    publisher_id = Column(UUID(as_uuid=True), ForeignKey('publishers.publisher_id'), nullable=False)
     publisher = relationship("Publishers", backref=backref("courses", lazy="dynamic"))
 
     def __init__(self, name):
@@ -88,12 +95,31 @@ class Courses(Model):
 
 
 class CoursesSchema(Schema):
+    class Meta:
+        ordered = True
+
+    def ratings_average_calculate(self, obj):
+        point = []
+        for rating in obj.ratings:
+            point.append(rating.points)
+        return np.average(point)
+
     id = fields.UUID()
+
     name = fields.String()
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
+
     platform = fields.Nested('PlatformsSchema')
     publisher = fields.Nested('PublishersSchema')
+
+    ratings = fields.Nested('RatingsSchema', many=True)
+    ratings_count = fields.Function(lambda obj: len(obj.ratings))
+    ratings_average = fields.Method("ratings_average_calculate")
+
+    reviews = fields.Nested('ReviewsSchema', many=True)
+    reviews_count = fields.Function(lambda obj: len(obj.reviews))
+
     _links = Hyperlinks(
         {"self": URLFor("courses.get", id="<id>"), "collection": URLFor("courses.get_all")}
     )
@@ -121,7 +147,11 @@ class Platforms(Model):
 
 
 class PlatformsSchema(Schema):
+    class Meta:
+        ordered = True
+
     id = fields.UUID()
+
     name = fields.String()
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
@@ -153,7 +183,11 @@ class Publishers(Model):
 
 
 class PublishersSchema(Schema):
+    class Meta:
+        ordered = True
+
     id = fields.UUID()
+
     name = fields.String()
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
@@ -174,10 +208,10 @@ class Ratings(Model):
     created_on = Column(DateTime, server_default=func.now())
     updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
-    course_id = Column(UUID, ForeignKey('courses.course_id'), nullable=False)
+    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), nullable=False)
     course = relationship('Courses', backref='ratings', lazy=True)
 
-    user_id = Column(UUID, ForeignKey('users.user_id'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     user = relationship('Users', backref="ratings", lazy=True)
 
     def __init__(self, user: Users, points: int):
@@ -195,10 +229,16 @@ class Ratings(Model):
 
 
 class RatingsSchema(Schema):
+    class Meta:
+        ordered = True
+
     id = fields.UUID()
+
     points = fields.Integer()
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
+
+    user = fields.Nested('UsersSchema', many=False)
 
     _links = Hyperlinks(
         {"self": URLFor("ratings.get", id="<id>"), "collection": URLFor("ratings.get_all")}
@@ -216,10 +256,10 @@ class Reviews(Model):
     created_on = Column(DateTime, server_default=func.now())
     updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
-    course_id = Column(UUID, ForeignKey('courses.course_id'), nullable=False)
+    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), nullable=False)
     course = relationship('Courses', backref='reviews', lazy=True)
 
-    user_id = Column(UUID, ForeignKey('users.user_id'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     user = relationship('Users', backref="reviews", lazy=True)
 
     def __init__(self, user: Users, description: str):
@@ -237,10 +277,16 @@ class Reviews(Model):
 
 
 class ReviewsSchema(Schema):
+    class Meta:
+        ordered = True
+
     id = fields.UUID()
+
     description = fields.String()
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
+
+    user = fields.Nested('UsersSchema', many=False)
 
     _links = Hyperlinks(
         {"self": URLFor("reviews.get", id="<id>"), "collection": URLFor("reviews.get_all")}

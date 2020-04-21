@@ -17,6 +17,7 @@ psycopg2-binary
 flask-marshmallow
 marshmallow_sqlalchemy
 flask_uuid
+numpy
 
 # Testing
 pytest

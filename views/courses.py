@@ -6,7 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
-from ..models import Courses, CoursesSchema, db_session, Platforms
+from ..models import Courses, CoursesSchema, db_session, Platforms, Ratings
 
 mod = Blueprint(
     'courses',
@@ -21,11 +21,13 @@ courses_schema = CoursesSchema(many=True)
 @mod.route('/', methods=['GET'])
 def get_all():
     return jsonify(courses_schema.dump(Courses.query.options().all()))
+    # return jsonify(courses_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).options().all()))
 
 
 @mod.route('/<uuid:id>', methods=['GET'])
 def get(id):
     return jsonify(course_schema.dump(Courses.query.options().get(id)))
+    # return jsonify(course_schema.dump(Courses.query.join(Ratings, isouter=True).options().get(id)))
 
 
 @mod.route('/', methods=['POST'])
@@ -60,4 +62,4 @@ def update(id):
     course.updated_on = func.now()
 
     db_session.commit()
-    return jsonify(course_schema.dump(Courses.query.get(id)))
+    return jsonify(course_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).get(id)))
