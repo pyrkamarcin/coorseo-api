@@ -18,7 +18,7 @@ def get_all():
     return jsonify(publishers_schema.dump(Publishers.query.all()))
 
 
-@mod.route('/<int:id>', methods=['GET'])
+@mod.route('/<uuid:id>', methods=['GET'])
 def get(id):
     return jsonify(publisher_schema.dump(Publishers.query.get(id)))
 
@@ -35,14 +35,14 @@ def post():
     return publisher_schema.dump(publisher)
 
 
-@mod.route('/<int:id>', methods=['DELETE'])
+@mod.route('/<uuid:id>', methods=['DELETE'])
 def delete(id):
     db_session.delete(Publishers.query.get(id))
     db_session.commit()
     return jsonify({'result': True})
 
 
-@mod.route('/<int:id>', methods=['PUT'])
+@mod.route('/<uuid:id>', methods=['PUT'])
 def update(id):
     publisher = Publishers.query.get(id)
     publisher.name = request.json.get('name', publisher.name)

@@ -18,7 +18,7 @@ def get_all():
     return jsonify(platforms_schema.dump(Platforms.query.all()))
 
 
-@mod.route('/<int:id>', methods=['GET'])
+@mod.route('/<uuid:id>', methods=['GET'])
 def get(id):
     return jsonify(platform_schema.dump(Platforms.query.get(id)))
 
@@ -35,14 +35,14 @@ def post():
     return platform_schema.dump(platform)
 
 
-@mod.route('/<int:id>', methods=['DELETE'])
+@mod.route('/<uuid:id>', methods=['DELETE'])
 def delete(id):
     db_session.delete(Platforms.query.get(id))
     db_session.commit()
     return jsonify({'result': True})
 
 
-@mod.route('/<int:id>', methods=['PUT'])
+@mod.route('/<uuid:id>', methods=['PUT'])
 def update(id):
     platform = Platforms.query.get(id)
     platform.name = request.json.get('name', platform.name)

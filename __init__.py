@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 from flask import (Flask)
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
+from flask_uuid import FlaskUUID
 
 from .views import home
 from .views import courses
@@ -16,6 +17,9 @@ app = Flask(__name__, static_url_path='/static')
 app.config['TESTING'] = True
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config['JSON_SORT_KEYS'] = False
+
+flask_uuid = FlaskUUID()
+flask_uuid.init_app(app)
 
 app.register_blueprint(home.mod)
 app.register_blueprint(courses.mod)
