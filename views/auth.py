@@ -21,7 +21,6 @@ user_schema = UsersSchema()
 
 # https://flask-jwt-extended.readthedocs.io/en/stable/
 
-
 @auth.route('/login', methods=['POST'])
 def login():
     if not request.is_json:

@@ -9,7 +9,9 @@ app = Flask(__name__, static_url_path='/static')
 app.config['TESTING'] = True
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config['JSON_SORT_KEYS'] = False
-app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
+app.config['JWT_TOKEN_LOCATION'] = 'headers'
+app.config['JWT_ALGORITHM'] = 'HS512'
+app.config['SECRET_KEY'] = 'HxGIR23yK41si8zd9t9kKTEzQu5IyWetsGzrKtPCe294P4ACyselq4McFarahci'
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 

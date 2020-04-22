@@ -19,7 +19,6 @@ marshmallow_sqlalchemy
 flask_uuid
 numpy
 flask-login
-flask_jwt
 passlib
 Flask-Mail
 

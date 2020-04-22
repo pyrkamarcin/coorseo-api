@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, abort
+from flask_jwt_extended import jwt_required, get_jwt_claims, get_jwt_identity
 from sqlalchemy import func
 
 from ..models import Reviews, ReviewsSchema, db_session, Users
@@ -24,6 +25,7 @@ def get(id):
 
 
 @mod.route('/', methods=['POST'])
+@jwt_required
 def post():
     if not request.json or not 'description' in request.json:
         abort(400)
@@ -33,9 +35,10 @@ def post():
 
     description = request.json['description']
     course_id = request.json['course']
-    user_id = request.json['user']
 
-    user = Users.query.get(user_id)
+    current_user = get_jwt_identity()
+
+    user = Users.query.filter_by(name=current_user).first()
 
     review = Reviews(user=user, description=description)
     review.course_id = course_id
@@ -46,6 +49,7 @@ def post():
 
 
 @mod.route('/<uuid:id>', methods=['DELETE'])
+@jwt_required
 def delete(id):
     db_session.delete(Reviews.query.get(id))
     db_session.commit()

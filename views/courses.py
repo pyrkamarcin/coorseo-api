@@ -20,7 +20,6 @@ courses_schema = CoursesSchema(many=True)
 
 
 @mod.route('/', methods=['GET'])
-@jwt_required
 def get_all():
     return jsonify(courses_schema.dump(Courses.query.options().all()))
     # return jsonify(courses_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).options().all()))
