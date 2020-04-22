@@ -21,6 +21,7 @@ numpy
 flask-login
 flask_jwt
 passlib
+Flask-Mail
 
 # Testing
 pytest

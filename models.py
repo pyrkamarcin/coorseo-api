@@ -4,13 +4,13 @@ from flask_marshmallow.fields import Hyperlinks, URLFor
 from flask_marshmallow.sqla import SQLAlchemySchema, auto_field, HyperlinkRelated
 from marshmallow import fields, pre_load, Schema
 from marshmallow.fields import List
-from marshmallow_sqlalchemy import ModelSchema
-from marshmallow_sqlalchemy.fields import Nested
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
-    ForeignKey, func
+    ForeignKey, func, Boolean
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID, json
+
+from passlib.hash import sha256_crypt
 
 import uuid
 
@@ -42,9 +42,13 @@ class Users(Model):
     first_name = Column(String(200))
     last_name = Column(String(200))
 
-    def __init__(self, email, name):
+    confirmed = Column(Boolean, nullable=False, default=False)
+    confirmed_on = Column(DateTime, nullable=True)
+
+    def __init__(self, email, name, password):
         self.email = email
         self.name = name
+        self.password = sha256_crypt.encrypt(password)
 
     def __eq__(self, other):
         return type(self) is type(other) and self.id == other.id
@@ -58,15 +62,6 @@ class UsersSchema(Schema):
         ordered = True
 
     id = fields.UUID()
-
-    # email = fields.String()
-    # name = fields.String()
-    # first_name = fields.String()
-    # last_name = fields.String()
-
-    _links = Hyperlinks(
-        {"self": URLFor("courses.get", id="<id>"), "collection": URLFor("courses.get_all")}
-    )
 
 
 class Courses(Model):
