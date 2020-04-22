@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, abort
 from sqlalchemy import func
 
-from ..models import Publishers, PublishersSchema, db_session
+from ..models.models import Publishers, PublishersSchema, db_session
 
 mod = Blueprint(
     'publishers',

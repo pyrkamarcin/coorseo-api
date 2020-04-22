@@ -46,7 +46,7 @@ from .views import profile
 from .views import ratings
 from .views import reviews
 
-from .models import db_session, Users
+from .models.models import db_session, Users
 
 # app.register_blueprint(home.mod)
 app.register_blueprint(auth.auth)

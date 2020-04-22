@@ -9,7 +9,7 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, TimedJSONWebSignatureSerializer
 from passlib.hash import sha256_crypt
 
-from ..models import db_session, Users, UsersSchema
+from ..models.models import db_session, Users, UsersSchema
 
 import smtplib
 from .. import app

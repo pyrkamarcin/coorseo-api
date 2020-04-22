@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from ..models import Users, db_session
+from ..models.models import Users, db_session
 
 mod = Blueprint(
     'profile',

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, abort
 from flask_jwt_extended import jwt_required, get_jwt_claims, get_jwt_identity
 from sqlalchemy import func
 
-from ..models import Reviews, ReviewsSchema, db_session, Users
+from ..models.models import Reviews, ReviewsSchema, db_session, Users
 
 mod = Blueprint(
     'reviews',
