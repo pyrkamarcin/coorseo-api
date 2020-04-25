@@ -29,13 +29,13 @@ def login():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     if not username:
-        return jsonify({"msg": "Missing parameters"}), 400
+        return jsonify({"msg": "Missing parameters."}), 400
     if not password:
-        return jsonify({"msg": "Missing parameters"}), 400
+        return jsonify({"msg": "Missing parameters."}), 400
 
     user = Users.query.filter_by(name=username).first()
 
-    if not user.confirmed:
+    if user and not user.confirmed:
         return jsonify({"msg": "User is not confirmed."}), 406
 
     if sha256_crypt.verify(password, user.password):
@@ -47,7 +47,7 @@ def login():
         }
         return jsonify(ret), 200
     else:
-        return jsonify({"msg": "Damn it!"}), 406
+        return jsonify({"msg": "User is not authorized or not exist."}), 406
 
 
 @auth.route('/refresh', methods=['POST'])
