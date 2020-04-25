@@ -105,7 +105,7 @@ def register():
             sender = 'no-reply@example.com'
             message = "Confirmation: {}".format(confirm_url)
             server = smtplib.SMTP('localhost:1025')
-            server.login(sender, password)
+            server.login(sender, "sample")
             server.sendmail(sender, to, message)
             server.quit()
 
@@ -150,3 +150,77 @@ def confirmation(token):
         db_session.add(user)
         db_session.commit()
     return jsonify({"msg": "Confirmed!"}), 200
+
+
+@auth.route('/password', methods=['POST'])
+def password_request():
+    def generate_confirmation_token(email):
+        serializer = TimedJSONWebSignatureSerializer('SECRET_KEY')
+        return serializer.dumps(email, salt='SECURITY_PASSWORD_SALT')
+
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    email = request.json.get('email', None)
+
+    user = Users.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"msg": "User not exist."}), 406
+
+    token = generate_confirmation_token(user.email)
+
+    def send_async_email(app, to, confirm_url):
+        with app.app_context():
+            sender = 'no-reply@example.com'
+            message = "Verify: {}".format(confirm_url)
+            server = smtplib.SMTP('localhost:1025')
+            server.login(sender, "sample")
+            server.sendmail(sender, to, message)
+            server.quit()
+
+    def send_email(to, confirm_url):
+        thr = threading.Thread(target=send_async_email, args=[app, to, confirm_url])
+        thr.start()
+        return thr
+
+    confirm_url = url_for('auth.password_change', token=token, _external=True)
+    send_email(user.email, confirm_url)
+
+    user_event = UserEvents(user, "password_change email sender")
+    db_session.add(user_event)
+
+    return jsonify({"msg": "Email send."}), 200
+
+
+@auth.route('/password/<token>', methods=['POST'])
+def password_change(token):
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    new_password = request.json.get('password', None)
+
+    def confirm_token(token):
+        serializer = TimedJSONWebSignatureSerializer('SECRET_KEY', expires_in=3600)
+        try:
+            email = serializer.loads(
+                token,
+                salt='SECURITY_PASSWORD_SALT'
+            )
+        except:
+            return False
+        return email
+
+    try:
+        email = confirm_token(token)
+    except:
+        return jsonify({"msg": "Token is not valid."}), 406
+
+    user = Users.query.filter_by(email=email).first()
+
+    if user and not user.confirmed:
+        return jsonify({"msg": "User is not confirmed."}), 406
+
+    user.password = sha256_crypt.encrypt(new_password)
+    db_session.add(user)
+    db_session.commit()
+    return jsonify({"msg": "Password changed."}), 200
