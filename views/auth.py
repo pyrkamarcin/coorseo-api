@@ -124,6 +124,54 @@ def register():
     return user_schema.dump(user)
 
 
+@auth.route('/resend_confirmation', methods=['POST'])
+def resend_confirmation():
+    # https://www.programcreek.com/python/example/101081/itsdangerous.URLSafeTimedSerializer
+    def generate_confirmation_token(email):
+        serializer = TimedJSONWebSignatureSerializer('SECRET_KEY')
+        return serializer.dumps(email, salt='SECURITY_PASSWORD_SALT')
+
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    email = request.json.get('email', None)
+    username = request.json.get('username', None)
+    if not email:
+        return jsonify({"msg": "Missing parameters."}), 400
+    if not username:
+        return jsonify({"msg": "Missing parameters."}), 400
+
+    user = Users.query.filter_by(name=username, email=email).first()
+
+    if user and user.confirmed:
+        return jsonify({"msg": "User is confirmed."}), 406
+
+    token = generate_confirmation_token(user.email)
+
+    def send_async_email(app, to, confirm_url):
+        with app.app_context():
+            sender = 'no-reply@example.com'
+            message = "Confirmation: {}".format(confirm_url)
+            server = smtplib.SMTP('localhost:1025')
+            server.login(sender, "sample")
+            server.sendmail(sender, to, message)
+            server.quit()
+
+    def send_email(to, confirm_url):
+        thr = threading.Thread(target=send_async_email, args=[app, to, confirm_url])
+        thr.start()
+        return thr
+
+    confirm_url = url_for('auth.confirmation', token=token, _external=True)
+    send_email(user.email, confirm_url)
+
+    user_event = UserEvents(user, "confirmation email sender again")
+    db_session.add(user_event)
+
+    db_session.commit()
+    return user_schema.dump(user)
+
+
 @auth.route('/confirmation/<token>', methods=['GET'])
 def confirmation(token):
     def confirm_token(token):
