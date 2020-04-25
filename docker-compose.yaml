@@ -21,6 +21,6 @@ services:
       - 8025:8025
 
   application:
-    image: coorseoadmin/coorseo:master
+    image: coorseoadmin/coorseo:develop
     ports:
       - 5000:5000

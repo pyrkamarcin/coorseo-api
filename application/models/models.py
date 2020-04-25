@@ -14,7 +14,7 @@ from passlib.hash import sha256_crypt
 
 import uuid
 
-engine = create_engine('postgresql+psycopg2://user:password@localhost:5432/coorseo',
+engine = create_engine('postgresql+psycopg2://user:password@db:5432/coorseo',
                        convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,

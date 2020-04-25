@@ -168,7 +168,7 @@ def register():
         with app.app_context():
             sender = 'no-reply@example.com'
             message = "Confirmation: {}".format(confirm_url)
-            server = smtplib.SMTP('localhost:1025')
+            server = smtplib.SMTP('mailhog:1025')
             server.login(sender, "sample")
             server.sendmail(sender, to, message)
             server.quit()
@@ -216,7 +216,7 @@ def resend_confirmation():
         with app.app_context():
             sender = 'no-reply@example.com'
             message = "Confirmation: {}".format(confirm_url)
-            server = smtplib.SMTP('localhost:1025')
+            server = smtplib.SMTP('mailhog:1025')
             server.login(sender, "sample")
             server.sendmail(sender, to, message)
             server.quit()
@@ -285,7 +285,7 @@ def password_request():
         with app.app_context():
             sender = 'no-reply@example.com'
             message = "Verify: {}".format(confirm_url)
-            server = smtplib.SMTP('localhost:1025')
+            server = smtplib.SMTP('mailhog:1025')
             server.login(sender, "sample")
             server.sendmail(sender, to, message)
             server.quit()
