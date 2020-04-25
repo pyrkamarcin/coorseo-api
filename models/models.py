@@ -64,6 +64,37 @@ class UsersSchema(Schema):
     id = fields.UUID()
 
 
+class UserEvents(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'user_events'
+    id = Column('user_event_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+
+    log = Column(String(512), unique=False, nullable=False)
+
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
+    user = relationship('Users', backref="user_events", lazy=True)
+
+    def __init__(self, user: Users, log: str):
+        self.user = user
+        self.log = log
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class UserEventsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+    log = fields.String()
+    user = fields.Nested('UsersSchema', many=False)
+
+
 class Courses(Model):
     query = db_session.query_property()
 
