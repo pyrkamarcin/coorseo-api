@@ -9,7 +9,7 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, TimedJSONWebSignatureSerializer
 from passlib.hash import sha256_crypt
 
-from ..models.models import db_session, Users, UsersSchema
+from ..models.models import db_session, Users, UsersSchema, UserEvents
 
 import smtplib
 from .. import app
@@ -29,17 +29,21 @@ def login():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     if not username:
-        return jsonify({"msg": "Missing username parameter"}), 400
+        return jsonify({"msg": "Missing parameters."}), 400
     if not password:
-        return jsonify({"msg": "Missing password parameter"}), 400
+        return jsonify({"msg": "Missing parameters."}), 400
 
     user = Users.query.filter_by(name=username).first()
 
-    # https://realpython.com/handling-email-confirmation-in-flask/
-    if user.confirmed == False:
-        return jsonify({"msg": "Idź się potwierdź, kurwa!"}), 406
+    if user and not user.confirmed:
+        return jsonify({"msg": "User is not confirmed."}), 406
 
     if sha256_crypt.verify(password, user.password):
+
+        user_event = UserEvents(user, "correctly logged")
+        db_session.add(user_event)
+        db_session.commit()
+
         # https://flask-jwt-extended.readthedocs.io/en/stable/add_custom_data_claims/
         ret = {
             'id': user.id,
@@ -48,7 +52,7 @@ def login():
         }
         return jsonify(ret), 200
     else:
-        return jsonify({"msg": "Damn it!"}), 406
+        return jsonify({"msg": "User is not authorized or not exist."}), 406
 
 
 @auth.route('/refresh', methods=['POST'])
