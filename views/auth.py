@@ -68,7 +68,6 @@ def refresh():
 @auth.route('/register', methods=['POST'])
 def register():
     # https://www.programcreek.com/python/example/101081/itsdangerous.URLSafeTimedSerializer
-    from itsdangerous import URLSafeTimedSerializer
     def generate_confirmation_token(email):
         serializer = TimedJSONWebSignatureSerializer('SECRET_KEY')
         return serializer.dumps(email, salt='SECURITY_PASSWORD_SALT')
@@ -80,13 +79,24 @@ def register():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     if not email:
-        return jsonify({"msg": "Missing email parameter"}), 400
+        return jsonify({"msg": "Missing parameters."}), 400
     if not username:
-        return jsonify({"msg": "Missing username parameter"}), 400
+        return jsonify({"msg": "Missing parameters."}), 400
     if not password:
-        return jsonify({"msg": "Missing password parameter"}), 400
+        return jsonify({"msg": "Missing parameters."}), 400
+
+    user = Users.query.filter_by(name=username).first()
+    if user:
+        return jsonify({"msg": "User exist."}), 406
 
     user = Users(email=email, name=username, password=password)
+
+    db_session.add(user)
+    db_session.commit()
+
+    user_event = UserEvents(user, "registered user")
+    db_session.add(user_event)
+    db_session.commit()
 
     token = generate_confirmation_token(user.email)
 
@@ -105,11 +115,11 @@ def register():
         return thr
 
     confirm_url = url_for('auth.confirmation', token=token, _external=True)
-    html = render_template('mail/activate.html', confirm_url=confirm_url)
-    subject = "Please confirm your email"
     send_email(user.email, confirm_url)
 
-    db_session.add(user)
+    user_event = UserEvents(user, "confirmation email sender")
+    db_session.add(user_event)
+
     db_session.commit()
     return user_schema.dump(user)
 
