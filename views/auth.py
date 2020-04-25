@@ -9,7 +9,7 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, TimedJSONWebSignatureSerializer
 from passlib.hash import sha256_crypt
 
-from ..models.models import db_session, Users, UsersSchema
+from ..models.models import db_session, Users, UsersSchema, UserEvents
 
 import smtplib
 from .. import app
@@ -39,6 +39,11 @@ def login():
         return jsonify({"msg": "User is not confirmed."}), 406
 
     if sha256_crypt.verify(password, user.password):
+
+        user_event = UserEvents(user, "correctly logged")
+        db_session.add(user_event)
+        db_session.commit()
+
         # https://flask-jwt-extended.readthedocs.io/en/stable/add_custom_data_claims/
         ret = {
             'id': user.id,
