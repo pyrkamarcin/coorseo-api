@@ -71,6 +71,7 @@ class UserEvents(Model):
     id = Column('user_event_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
 
     log = Column(String(512), unique=False, nullable=False)
+    created_on = Column(DateTime, server_default=func.now())
 
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     user = relationship('Users', backref="user_events", lazy=True)
