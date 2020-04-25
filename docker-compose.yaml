@@ -12,6 +12,8 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: coorseo
+    volumes:
+      - db-data:/var/lib/postgresql/data
 
   mailhog:
     image: mailhog/mailhog:latest
@@ -24,3 +26,7 @@ services:
     image: coorseoadmin/coorseo:develop
     ports:
       - 5000:5000
+
+volumes:
+  db-data:
+    driver: local
