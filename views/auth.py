@@ -29,15 +29,15 @@ def login():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     if not username:
-        return jsonify({"msg": "Missing username parameter"}), 400
+        return jsonify({"msg": "Missing parameters"}), 400
     if not password:
-        return jsonify({"msg": "Missing password parameter"}), 400
+        return jsonify({"msg": "Missing parameters"}), 400
 
     user = Users.query.filter_by(name=username).first()
 
     # https://realpython.com/handling-email-confirmation-in-flask/
     if user.confirmed == False:
-        return jsonify({"msg": "Idź się potwierdź, kurwa!"}), 406
+        return jsonify({"msg": "Error"}), 406
 
     if sha256_crypt.verify(password, user.password):
         # https://flask-jwt-extended.readthedocs.io/en/stable/add_custom_data_claims/
