@@ -15,6 +15,14 @@ gunicorn
 Flask-Cors
 psycopg2-binary
 flask-marshmallow
+marshmallow_sqlalchemy
+flask_uuid
+numpy
+flask-login
+passlib
+Flask-Mail
+
+flask_swagger_ui
 
 # Testing
 pytest

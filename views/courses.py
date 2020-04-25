@@ -1,10 +1,13 @@
 import json
 
 from flask import Blueprint, request, jsonify, abort, make_response
+from flask_jwt_extended import jwt_required
+from flask_uuid import FlaskUUID
 from sqlalchemy import func
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
+import uuid
 
-from ..models import Courses, CoursesSchema, db_session, Platforms
+from ..models.models import Courses, CoursesSchema, db_session, Platforms, Ratings
 
 mod = Blueprint(
     'courses',
@@ -19,11 +22,13 @@ courses_schema = CoursesSchema(many=True)
 @mod.route('/', methods=['GET'])
 def get_all():
     return jsonify(courses_schema.dump(Courses.query.options().all()))
+    # return jsonify(courses_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).options().all()))
 
 
-@mod.route('/<int:id>', methods=['GET'])
+@mod.route('/<uuid:id>', methods=['GET'])
 def get(id):
     return jsonify(course_schema.dump(Courses.query.options().get(id)))
+    # return jsonify(course_schema.dump(Courses.query.join(Ratings, isouter=True).options().get(id)))
 
 
 @mod.route('/', methods=['POST'])
@@ -32,8 +37,8 @@ def post():
         abort(400)
 
     name = request.json['name']
-    platform_id = request.json['platform_id']
-    publisher_id = request.json['publisher_id']
+    platform_id = request.json['platform']
+    publisher_id = request.json['publisher']
 
     course = Courses(name)
     course.platform_id = platform_id
@@ -44,18 +49,18 @@ def post():
     return course_schema.dump(course)
 
 
-@mod.route('/<int:id>', methods=['DELETE'])
+@mod.route('/<uuid:id>', methods=['DELETE'])
 def delete(id):
     db_session.delete(Courses.query.get(id))
     db_session.commit()
     return jsonify({'result': True})
 
 
-@mod.route('/<int:id>', methods=['PUT'])
+@mod.route('/<uuid:id>', methods=['PUT'])
 def update(id):
     course = Courses.query.get(id)
     course.name = request.json.get('name', course.name)
     course.updated_on = func.now()
 
     db_session.commit()
-    return jsonify(course_schema.dump(Courses.query.get(id)))
+    return jsonify(course_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).get(id)))
