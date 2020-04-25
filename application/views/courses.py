@@ -7,7 +7,7 @@ from sqlalchemy import func
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
-from ..models.models import Courses, CoursesSchema, db_session, Platforms, Ratings
+from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings
 
 mod = Blueprint(
     'courses',
