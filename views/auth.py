@@ -35,9 +35,8 @@ def login():
 
     user = Users.query.filter_by(name=username).first()
 
-    # https://realpython.com/handling-email-confirmation-in-flask/
-    if user.confirmed == False:
-        return jsonify({"msg": "Error"}), 406
+    if not user.confirmed:
+        return jsonify({"msg": "User is not confirmed."}), 406
 
     if sha256_crypt.verify(password, user.password):
         # https://flask-jwt-extended.readthedocs.io/en/stable/add_custom_data_claims/
