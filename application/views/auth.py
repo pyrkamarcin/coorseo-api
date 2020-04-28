@@ -41,7 +41,7 @@ def email_from_confirm_token(token):
 def send_async_email(to, confirm_url):
     sender = 'no-reply@example.com'
     message = "Verify: {}".format(confirm_url)
-    server = smtplib.SMTP('localhost:1025')
+    server = smtplib.SMTP('mailhog:1025')
     server.login(sender, "sample")
     server.sendmail(sender, to, message)
     server.quit()

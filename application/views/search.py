@@ -16,7 +16,7 @@ mod = Blueprint(
     url_prefix='/api/search'
 )
 
-es = Elasticsearch()
+es = Elasticsearch(hosts='es01:9200')
 
 course_schema = CoursesSchema()
 courses_schema = CoursesSchema(many=True)
