@@ -1,9 +1,11 @@
 import json
 
+from elasticsearch import Elasticsearch
 from flask import Blueprint, request, jsonify, abort, make_response
 from flask_jwt_extended import jwt_required
 from flask_uuid import FlaskUUID
 from sqlalchemy import func
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
@@ -14,6 +16,8 @@ mod = Blueprint(
     __name__,
     url_prefix='/api/courses'
 )
+
+es = Elasticsearch()
 
 course_schema = CoursesSchema()
 courses_schema = CoursesSchema(many=True)
@@ -46,6 +50,11 @@ def post():
 
     db_session.add(course)
     db_session.commit()
+
+    # https://github.com/seek-ai/esengine
+    # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvi-full-text-search
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_schema.dump(course)))
+
     return course_schema.dump(course)
 
 
@@ -63,4 +72,7 @@ def update(id):
     course.updated_on = func.now()
 
     db_session.commit()
+
+    es.update(index='courses', doc_type='title', id=course.id, body=json.dumps(course_schema.dump(course)))
+
     return jsonify(course_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).get(id)))

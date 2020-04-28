@@ -21,6 +21,12 @@ numpy
 flask-login
 passlib
 Flask-Mail
+python-dotenv
+pycrypto
+cryptography
+
+elasticsearch # ?
+Flask-Elasticsearch # ? https://pypi.org/project/Flask-Elasticsearch/
 
 flask_swagger_ui
 
