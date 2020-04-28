@@ -1,21 +1,20 @@
 import numpy as np
 
+import json
+
 from flask_marshmallow.fields import Hyperlinks, URLFor
-from flask_marshmallow.sqla import SQLAlchemySchema, auto_field, HyperlinkRelated
-from marshmallow import fields, pre_load, Schema
-from marshmallow.fields import List
+from marshmallow import fields, Schema
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
-    ForeignKey, func, Boolean
+    ForeignKey, func, Boolean, JSON
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import UUID, json
+from sqlalchemy.dialects.postgresql import UUID
 
 from passlib.hash import sha256_crypt
 
 import uuid
 
-engine = create_engine('postgresql+psycopg2://user:password@db:5432/coorseo',
-                       convert_unicode=True)
+engine = create_engine("postgresql+psycopg2://user:password@localhost:5432/coorseo", convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
@@ -41,6 +40,8 @@ class Users(Model):
 
     first_name = Column(String(200))
     last_name = Column(String(200))
+
+    created_on = Column(DateTime, server_default=func.now())
 
     confirmed = Column(Boolean, nullable=False, default=False)
     confirmed_on = Column(DateTime, nullable=True)
@@ -71,14 +72,18 @@ class UserEvents(Model):
     id = Column('user_event_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
 
     log = Column(String(512), unique=False, nullable=False)
+    meta = Column(JSON, nullable=True)
     created_on = Column(DateTime, server_default=func.now())
 
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     user = relationship('Users', backref="user_events", lazy=True)
 
-    def __init__(self, user: Users, log: str):
+    def __init__(self, user: Users, log: str, meta=None):
+        if meta is None:
+            meta = {}
         self.user = user
         self.log = log
+        self.meta = meta
 
     def __eq__(self, other):
         return type(self) is type(other) and self.id == other.id
@@ -127,7 +132,8 @@ class CoursesSchema(Schema):
     class Meta:
         ordered = True
 
-    def ratings_average_calculate(self, obj):
+    @staticmethod
+    def ratings_average_calculate(obj):
         point = []
         for rating in obj.ratings:
             point.append(rating.points)
@@ -136,6 +142,7 @@ class CoursesSchema(Schema):
     id = fields.UUID()
 
     name = fields.String()
+    # https://stackoverflow.com/questions/53606872/datetime-format-in-flask-marshmallow-schema
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
 
@@ -144,7 +151,6 @@ class CoursesSchema(Schema):
 
     ratings = fields.Nested('RatingsSchema', many=True)
     ratings_count = fields.Function(lambda obj: len(obj.ratings))
-    ratings_average = fields.Method("ratings_average_calculate")
 
     reviews = fields.Nested('ReviewsSchema', many=True)
     reviews_count = fields.Function(lambda obj: len(obj.reviews))
