@@ -1,7 +1,5 @@
 import numpy as np
 
-import json
-
 from flask_marshmallow.fields import Hyperlinks, URLFor
 from marshmallow import fields, Schema
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
@@ -25,13 +23,6 @@ def init_db():
 
 
 Model = declarative_base(name='Model')
-
-
-# courses_has_tags = Table('courses_has_tags',
-#                          Model.metadata,
-#                          Column('course_id', UUID(as_uuid=True), ForeignKey('courses.course_id')),
-#                          Column('tag_id', UUID(as_uuid=True), ForeignKey('tags.tag_id'))
-#                          )
 
 
 class Users(Model):
@@ -165,6 +156,7 @@ class CoursesSchema(Schema):
     reviews_count = fields.Function(lambda obj: len(obj.reviews))
 
     tags = fields.Nested('TagsSchema', many=True)
+    keywords = fields.Nested('KeywordsSchema', many=True)
 
     _links = Hyperlinks(
         {"self": URLFor("courses.get", id="<id>"), "collection": URLFor("courses.get_all")}
@@ -346,18 +338,18 @@ class Tags(Model):
 
     id = Column('tag_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
 
-    name = Column(String(200), nullable=False)
+    name = Column(String(200), unique=True, nullable=False)
     description = Column(String(2000), nullable=True)
 
     created_on = Column(DateTime, server_default=func.now())
     updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
     def __init__(self, name: str, description: str):
-        self.user = name
+        self.name = name
         self.description = description
 
     def to_json(self):
-        return dict(name=self.description)
+        return dict(name=self.name, description=self.description)
 
     def __eq__(self, other):
         return type(self) is type(other) and self.id == other.id
@@ -387,7 +379,8 @@ class CoursesHasTags(Model):
 
     __tablename__ = 'courses_has_tags'
 
-    id = Column('courses_has_tags_id', UUID(as_uuid=True), primary_key=True, unique=True)
+    id = Column('courses_has_tags_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True,
+                nullable=False)
     tag_id = Column(UUID(as_uuid=True), ForeignKey('tags.tag_id'), unique=False)
     course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), unique=False)
 
@@ -396,6 +389,45 @@ class CoursesHasTags(Model):
 
     course = relationship("Courses", backref="tags_courses_has_tags")
     tag = relationship("Tags", backref="courses_courses_has_tags")
+
+
+class Keywords(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'keywords'
+
+    id = Column('keyword_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+
+    name = Column(String(200), nullable=False)
+
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), nullable=False)
+    course = relationship('Courses', backref='keywords', lazy=True)
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def to_json(self):
+        return dict(name=self.name)
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class KeywordsSchema(Schema):
+    class Meta(Schema.Meta):
+        ordered = True
+
+    id = fields.UUID()
+
+    name = fields.String()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
 
 
 if __name__ == '__main__':

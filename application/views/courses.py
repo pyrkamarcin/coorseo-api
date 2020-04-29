@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
-from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings
+from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings, Keywords, KeywordsSchema
 
 mod = Blueprint(
     'courses',
@@ -21,6 +21,9 @@ es = Elasticsearch(hosts='es01:9200')
 
 course_schema = CoursesSchema()
 courses_schema = CoursesSchema(many=True)
+
+keyword_schema = KeywordsSchema()
+keyword_schemas = KeywordsSchema(many=True)
 
 
 @mod.route('/', methods=['GET'])
@@ -73,6 +76,35 @@ def update(id):
 
     db_session.commit()
 
-    es.update(index='courses', doc_type='title', id=course.id, body=json.dumps(course_schema.dump(course)))
+    # es.update(index='courses', doc_type='title', id=course.id, body=json.dumps(course_schema.dump(course)))
 
     return jsonify(course_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).get(id)))
+
+
+@mod.route('/<uuid:course_id>/keywords/', methods=['POST'])
+def add_keyword(course_id):
+    if not request.json or not 'name' in request.json:
+        abort(400)
+    course = Courses.query.get(course_id)
+
+    name = request.json['name']
+    keyword = Keywords(name)
+    course.keywords.append(keyword)
+
+    course.updated_on = func.now()
+
+    db_session.commit()
+
+    # es.update(index='courses', doc_type='title', id=course_id, body=json.dumps(course_schema.dump(course)))
+
+    return keyword_schema.dump(keyword)
+
+
+@mod.route('/<uuid:course_id>/keywords/<uuid:keyword_id>', methods=['GET'])
+def keywords_get(course_id, keyword_id):
+    return jsonify(keyword_schema.dump(Keywords.query.options().get(keyword_id)))
+
+
+@mod.route('/<uuid:course_id>/keywords/', methods=['GET'])
+def keywords_get_all(course_id):
+    return jsonify(keyword_schemas.dump(Keywords.query.filter_by(course_id=course_id).options().all()))
