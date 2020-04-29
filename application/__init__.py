@@ -26,6 +26,7 @@ from application.views import profile
 from application.views import ratings
 from application.views import reviews
 from application.views import search
+from application.views import tags
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -39,7 +40,6 @@ blacklist = set()
 flask_uuid = FlaskUUID()
 flask_uuid.init_app(app)
 
-
 app.register_blueprint(auth.auth)
 app.register_blueprint(home.mod)
 app.register_blueprint(courses.mod)
@@ -49,6 +49,7 @@ app.register_blueprint(profile.mod)
 app.register_blueprint(ratings.mod)
 app.register_blueprint(reviews.mod)
 app.register_blueprint(search.mod)
+app.register_blueprint(tags.mod)
 
 
 @jwt.token_in_blacklist_loader

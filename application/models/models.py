@@ -5,7 +5,7 @@ import json
 from flask_marshmallow.fields import Hyperlinks, URLFor
 from marshmallow import fields, Schema
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
-    ForeignKey, func, Boolean, JSON
+    ForeignKey, func, Boolean, JSON, Table
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
@@ -25,6 +25,13 @@ def init_db():
 
 
 Model = declarative_base(name='Model')
+
+
+# courses_has_tags = Table('courses_has_tags',
+#                          Model.metadata,
+#                          Column('course_id', UUID(as_uuid=True), ForeignKey('courses.course_id')),
+#                          Column('tag_id', UUID(as_uuid=True), ForeignKey('tags.tag_id'))
+#                          )
 
 
 class Users(Model):
@@ -118,6 +125,8 @@ class Courses(Model):
     publisher_id = Column(UUID(as_uuid=True), ForeignKey('publishers.publisher_id'), nullable=False)
     publisher = relationship("Publishers", backref=backref("courses", lazy="dynamic"))
 
+    tags = relationship("Tags", secondary="courses_has_tags")
+
     def __init__(self, name):
         self.name = name
 
@@ -154,6 +163,8 @@ class CoursesSchema(Schema):
 
     reviews = fields.Nested('ReviewsSchema', many=True)
     reviews_count = fields.Function(lambda obj: len(obj.reviews))
+
+    tags = fields.Nested('TagsSchema', many=True)
 
     _links = Hyperlinks(
         {"self": URLFor("courses.get", id="<id>"), "collection": URLFor("courses.get_all")}
@@ -326,6 +337,65 @@ class ReviewsSchema(Schema):
     _links = Hyperlinks(
         {"self": URLFor("reviews.get", id="<id>"), "collection": URLFor("reviews.get_all")}
     )
+
+
+class Tags(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'tags'
+
+    id = Column('tag_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+
+    name = Column(String(200), nullable=False)
+    description = Column(String(2000), nullable=True)
+
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    def __init__(self, name: str, description: str):
+        self.user = name
+        self.description = description
+
+    def to_json(self):
+        return dict(name=self.description)
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class TagsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+
+    name = fields.String()
+    description = fields.String()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+
+    _links = Hyperlinks(
+        {"self": URLFor("tags.get", id="<id>"), "collection": URLFor("tags.get_all")}
+    )
+
+
+class CoursesHasTags(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'courses_has_tags'
+
+    id = Column('courses_has_tags_id', UUID(as_uuid=True), primary_key=True, unique=True)
+    tag_id = Column(UUID(as_uuid=True), ForeignKey('tags.tag_id'), unique=False)
+    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), unique=False)
+
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    course = relationship("Courses", backref="tags_courses_has_tags")
+    tag = relationship("Tags", backref="courses_courses_has_tags")
 
 
 if __name__ == '__main__':
