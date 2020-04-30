@@ -9,7 +9,8 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
-from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings
+from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings, Keywords, KeywordsSchema, \
+    Tags, CoursesSearchSchema
 
 mod = Blueprint(
     'courses',
@@ -21,6 +22,11 @@ es = Elasticsearch(hosts='es01:9200')
 
 course_schema = CoursesSchema()
 courses_schema = CoursesSchema(many=True)
+
+course_search_schema = CoursesSearchSchema()
+
+keyword_schema = KeywordsSchema()
+keyword_schemas = KeywordsSchema(many=True)
 
 
 @mod.route('/', methods=['GET'])
@@ -53,7 +59,7 @@ def post():
 
     # https://github.com/seek-ai/esengine
     # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvi-full-text-search
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_schema.dump(course)))
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return course_schema.dump(course)
 
@@ -67,12 +73,58 @@ def delete(id):
 
 @mod.route('/<uuid:id>', methods=['PUT'])
 def update(id):
-    course = Courses.query.get(id)
+    course = Courses.query.filter_by(id=id).first()
     course.name = request.json.get('name', course.name)
     course.updated_on = func.now()
 
     db_session.commit()
 
-    es.update(index='courses', doc_type='title', id=course.id, body=json.dumps(course_schema.dump(course)))
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
-    return jsonify(course_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).get(id)))
+    return jsonify(course_schema.dump(course))
+
+
+@mod.route('/<uuid:course_id>/keywords/', methods=['POST'])
+def add_keyword(course_id):
+    if not request.json or not 'name' in request.json:
+        abort(400)
+    course = Courses.query.get(course_id)
+
+    name = request.json['name']
+    keyword = Keywords(name)
+    course.keywords.append(keyword)
+
+    course.updated_on = func.now()
+
+    db_session.commit()
+
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+
+    return keyword_schema.dump(keyword)
+
+
+@mod.route('/<uuid:course_id>/keywords/<uuid:keyword_id>', methods=['GET'])
+def keywords_get(course_id, keyword_id):
+    return jsonify(keyword_schema.dump(Keywords.query.options().get(keyword_id)))
+
+
+@mod.route('/<uuid:course_id>/keywords/', methods=['GET'])
+def keywords_get_all(course_id):
+    return jsonify(keyword_schemas.dump(Keywords.query.filter_by(course_id=course_id).options().all()))
+
+
+@mod.route('/<uuid:course_id>/tag/', methods=['POST'])
+def add_tag(course_id):
+    if not request.json or not 'tag_id' in request.json:
+        abort(400)
+
+    tag_id = request.json['tag_id']
+    course = Courses.query.get(course_id)
+    tag = Tags.query.filter_by(id=tag_id).first()
+
+    course.tags.append(tag)
+    db_session.commit()
+
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+
+    return jsonify(course_schema.dump(course))

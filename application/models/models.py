@@ -1,11 +1,9 @@
 import numpy as np
 
-import json
-
 from flask_marshmallow.fields import Hyperlinks, URLFor
 from marshmallow import fields, Schema
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
-    ForeignKey, func, Boolean, JSON
+    ForeignKey, func, Boolean, JSON, Table
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
@@ -118,6 +116,8 @@ class Courses(Model):
     publisher_id = Column(UUID(as_uuid=True), ForeignKey('publishers.publisher_id'), nullable=False)
     publisher = relationship("Publishers", backref=backref("courses", lazy="dynamic"))
 
+    tags = relationship("Tags", secondary="courses_has_tags")
+
     def __init__(self, name):
         self.name = name
 
@@ -155,9 +155,43 @@ class CoursesSchema(Schema):
     reviews = fields.Nested('ReviewsSchema', many=True)
     reviews_count = fields.Function(lambda obj: len(obj.reviews))
 
+    tags = fields.Nested('TagsSchema', many=True)
+    keywords = fields.Nested('KeywordsSchema', many=True)
+
     _links = Hyperlinks(
         {"self": URLFor("courses.get", id="<id>"), "collection": URLFor("courses.get_all")}
     )
+
+
+class CoursesSearchSchema(Schema):
+    class Meta:
+        ordered = True
+
+    @staticmethod
+    def ratings_average_calculate(obj):
+        point = []
+        for rating in obj.ratings:
+            point.append(rating.points)
+        return np.average(point)
+
+    id = fields.UUID()
+
+    name = fields.String()
+    # https://stackoverflow.com/questions/53606872/datetime-format-in-flask-marshmallow-schema
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+
+    platform = fields.Nested('PlatformsSchema', only=["name"])
+    publisher = fields.Nested('PublishersSchema', only=["name"])
+
+    ratings = fields.Nested('RatingsSchema', many=True)
+    ratings_count = fields.Function(lambda obj: len(obj.ratings))
+
+    reviews = fields.Nested('ReviewsSchema', many=True)
+    reviews_count = fields.Function(lambda obj: len(obj.reviews))
+
+    tags = fields.Nested('TagsSchema', many=True, only=['name'])
+    keywords = fields.Nested('KeywordsSchema', many=True)
 
 
 class Platforms(Model):
@@ -326,6 +360,105 @@ class ReviewsSchema(Schema):
     _links = Hyperlinks(
         {"self": URLFor("reviews.get", id="<id>"), "collection": URLFor("reviews.get_all")}
     )
+
+
+class Tags(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'tags'
+
+    id = Column('tag_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+
+    name = Column(String(200), unique=True, nullable=False)
+    description = Column(String(2000), nullable=True)
+
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    def __init__(self, name: str, description: str):
+        self.name = name
+        self.description = description
+
+    def to_json(self):
+        return dict(name=self.name, description=self.description)
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class TagsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+
+    name = fields.String()
+    description = fields.String()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+
+    _links = Hyperlinks(
+        {"self": URLFor("tags.get", id="<id>"), "collection": URLFor("tags.get_all")}
+    )
+
+
+class CoursesHasTags(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'courses_has_tags'
+
+    id = Column('courses_has_tags_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True,
+                nullable=False)
+    tag_id = Column(UUID(as_uuid=True), ForeignKey('tags.tag_id'), unique=False)
+    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), unique=False)
+
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    course = relationship("Courses", backref="tags_courses_has_tags")
+    tag = relationship("Tags", backref="courses_courses_has_tags")
+
+
+class Keywords(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'keywords'
+
+    id = Column('keyword_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+
+    name = Column(String(200), nullable=False)
+
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), nullable=False)
+    course = relationship('Courses', backref='keywords', lazy=True)
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def to_json(self):
+        return dict(name=self.name)
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class KeywordsSchema(Schema):
+    class Meta(Schema.Meta):
+        ordered = True
+
+    id = fields.UUID()
+
+    name = fields.String()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
 
 
 if __name__ == '__main__':

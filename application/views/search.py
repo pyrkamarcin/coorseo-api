@@ -32,7 +32,7 @@ def search():
         "query": {
             "multi_match": {
                 "query": keyword,
-                "fields": ["name", "*.name"],
+                "fields": ["name", "*.name", "*.description", "**.name", "tags"],
                 "fuzziness": "AUTO"
             }
         }
