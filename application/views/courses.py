@@ -15,7 +15,7 @@ from application.models.models import Courses, CoursesSchema, db_session, Platfo
 mod = Blueprint(
     'courses',
     __name__,
-    url_prefix='/api/courses'
+    url_prefix='/api/v1/courses'
 )
 
 es = Elasticsearch(hosts='es01:9200')

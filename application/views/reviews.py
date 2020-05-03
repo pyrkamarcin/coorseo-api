@@ -7,7 +7,7 @@ from application.models.models import Reviews, ReviewsSchema, db_session, Users
 mod = Blueprint(
     'reviews',
     __name__,
-    url_prefix='/api/reviews'
+    url_prefix='/api/v1/reviews'
 )
 
 review_schema = ReviewsSchema()

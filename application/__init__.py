@@ -65,7 +65,7 @@ def remove_db_session(exception):
     db_session.remove()
 
 
-@app.route('/logout')
+@app.route('/api/v1/user/logout', methods=['GET'])
 @jwt_required
 def logout():
     jti = get_raw_jwt()['jti']

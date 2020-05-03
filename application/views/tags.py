@@ -6,7 +6,7 @@ from application.models.models import Tags, TagsSchema, db_session
 mod = Blueprint(
     'tags',
     __name__,
-    url_prefix='/api/tags'
+    url_prefix='/api/v1/tags'
 )
 
 tag_schema = TagsSchema()

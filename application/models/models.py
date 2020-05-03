@@ -45,7 +45,7 @@ class Users(Model):
     confirmed = Column(Boolean, nullable=False, default=False)
     confirmed_on = Column(DateTime, nullable=True)
 
-    tags = relationship("Agreements", secondary="user_agreements")
+    agreements = relationship("Agreements", secondary="user_agreements")
 
     def __init__(self, email, name, password):
         self.email = email
@@ -473,8 +473,11 @@ class Agreements(Model):
 
     title = Column(String(200), nullable=False)
     description = Column(String(200), nullable=True)
+    body = Column(String(), nullable=True)
     valid_from = Column(DateTime)
     valid_to = Column(DateTime)
+    is_active = Column(Boolean, default=False)
+    is_required = Column(Boolean, default=False)
     created_on = Column(DateTime, server_default=func.now())
     updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
@@ -499,10 +502,17 @@ class AgreementsSchema(Schema):
 
     title = fields.String()
     description = fields.String()
+    body = fields.String()
     valid_from = fields.DateTime()
     valid_to = fields.DateTime()
+    is_active = fields.Boolean()
+    is_required = fields.Boolean()
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
+
+    _links = Hyperlinks(
+        {"self": URLFor("agreements.get", id="<id>"), "collection": URLFor("agreements.get_all")}
+    )
 
 
 class UserAgreements(Model):
@@ -523,6 +533,28 @@ class UserAgreements(Model):
 
     user = relationship("Users", backref="agreements_user_agreements")
     agreement = relationship("Agreements", backref="users_user_agreements")
+
+    def __init__(self, user: Users, agreement: Agreements, is_accepted: Boolean):
+        self.user = user
+        self.agreement = agreement
+        self.is_accepted = is_accepted
+
+
+class UserAgreementsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+
+    is_read = fields.Boolean()
+    is_accepted = fields.Boolean()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+    agreement = fields.Nested('AgreementsSchema', many=False, exclude=['_links'])
+
+    _agreement_links = Hyperlinks(
+        {"self": URLFor("agreements.get", id="<agreements_id>"), "collection": URLFor("agreements.get_all")}
+    )
 
 
 if __name__ == '__main__':
