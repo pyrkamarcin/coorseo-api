@@ -23,8 +23,6 @@ from application.views import courses
 from application.views import platforms
 from application.views import publishers
 from application.views import profile
-from application.views import ratings
-from application.views import reviews
 from application.views import search
 from application.views import tags
 from application.views import agreements
@@ -47,8 +45,6 @@ app.register_blueprint(courses.mod)
 app.register_blueprint(platforms.mod)
 app.register_blueprint(publishers.mod)
 app.register_blueprint(profile.mod)
-app.register_blueprint(ratings.mod)
-app.register_blueprint(reviews.mod)
 app.register_blueprint(search.mod)
 app.register_blueprint(tags.mod)
 app.register_blueprint(agreements.mod)

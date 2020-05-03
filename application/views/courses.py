@@ -2,7 +2,7 @@ import json
 
 from elasticsearch import Elasticsearch
 from flask import Blueprint, request, jsonify, abort, make_response
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_uuid import FlaskUUID
 from sqlalchemy import func
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -10,7 +10,7 @@ from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
 from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings, Keywords, KeywordsSchema, \
-    Tags, CoursesSearchSchema
+    Tags, CoursesSearchSchema, RatingsSchema, Users, ReviewsSchema, Reviews
 
 mod = Blueprint(
     'courses',
@@ -27,6 +27,12 @@ course_search_schema = CoursesSearchSchema()
 
 keyword_schema = KeywordsSchema()
 keyword_schemas = KeywordsSchema(many=True)
+
+rating_schema = RatingsSchema()
+ratings_schema = RatingsSchema(many=True)
+
+review_schema = ReviewsSchema()
+reviews_schema = ReviewsSchema(many=True)
 
 
 @mod.route('/', methods=['GET'])
@@ -128,3 +134,84 @@ def add_tag(course_id):
     es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return jsonify(course_schema.dump(course))
+
+
+@mod.route('/<uuid:course_id>/ratings/', methods=['GET'])
+def ratings_get_all(course_id):
+    course = Courses.query.get(course_id)
+    return jsonify(ratings_schema.dump(Ratings.query.filter_by(course=course).all()))
+
+
+@mod.route('/<uuid:course_id>/ratings/<uuid:rating_id>', methods=['GET'])
+def ratings_get(course_id, rating_id):
+    course = Courses.query.get(course_id)
+    return jsonify(rating_schema.dump(Ratings.query.filter_by(course=course, id=rating_id).first()))
+
+
+@mod.route('/<uuid:course_id>/ratings/', methods=['POST'])
+@jwt_required
+def ratings_create(course_id):
+    if not request.json or not 'points' in request.json:
+        abort(400)
+
+    points = request.json['points']
+
+    course = Courses.query.get(course_id)
+
+    current_user = get_jwt_identity()
+    user = Users.query.filter_by(name=current_user).first()
+
+    rating = Ratings(user=user, course=course, points=points)
+    db_session.add(rating)
+    db_session.commit()
+
+    return rating_schema.dump(rating)
+
+
+@mod.route('/<uuid:course_id>/ratings/<uuid:rating_id>', methods=['DELETE'])
+@jwt_required
+def ratings_delete(course_id, rating_id):
+    db_session.delete(Ratings.query.get(rating_id))
+    db_session.commit()
+    return jsonify({'result': True})
+
+
+@mod.route('/<uuid:course_id>/reviews/', methods=['GET'])
+def reviews_get_all(course_id):
+    course = Courses.query.get(course_id)
+    return jsonify(reviews_schema.dump(Reviews.query.filter_by(course=course).all()))
+
+
+@mod.route('/<uuid:course_id>/reviews/<uuid:review_id>', methods=['GET'])
+def reviews_get(course_id, review_id):
+    course = Courses.query.get(course_id)
+    return jsonify(review_schema.dump(Reviews.query.filter_by(course=course, id=review_id).first()))
+
+
+@mod.route('/<uuid:course_id>/reviews/', methods=['POST'])
+@jwt_required
+def reviews_create(course_id):
+    if not request.json or not 'description' in request.json:
+        abort(400)
+
+    description = request.json['description']
+
+    course = Courses.query.get(course_id)
+
+    current_user = get_jwt_identity()
+
+    user = Users.query.filter_by(name=current_user).first()
+
+    review = Reviews(user=user, course=course, description=description)
+    db_session.add(review)
+    db_session.commit()
+
+    return review_schema.dump(review)
+
+
+@mod.route('/<uuid:course_id>/reviews/<uuid:review_id>', methods=['DELETE'])
+@jwt_required
+def reviews_delete(course_id, review_id):
+    db_session.delete(Reviews.query.get(review_id))
+    db_session.commit()
+    return jsonify({'result': True})

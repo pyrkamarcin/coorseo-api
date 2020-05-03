@@ -286,8 +286,9 @@ class Ratings(Model):
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     user = relationship('Users', backref="ratings", lazy=True)
 
-    def __init__(self, user: Users, points: int):
+    def __init__(self, user: Users, course: Courses, points: int):
         self.user = user
+        self.course = course
         self.points = points
 
     def to_json(self):
@@ -313,7 +314,8 @@ class RatingsSchema(Schema):
     user = fields.Nested('UsersSchema', many=False)
 
     _links = Hyperlinks(
-        {"self": URLFor("ratings.get", id="<id>"), "collection": URLFor("ratings.get_all")}
+        {"self": URLFor("courses.ratings_get", course_id="<course_id>", rating_id="<id>"),
+         "collection": URLFor("courses.ratings_get_all", course_id="<course_id>")}
     )
 
 
@@ -334,8 +336,9 @@ class Reviews(Model):
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     user = relationship('Users', backref="reviews", lazy=True)
 
-    def __init__(self, user: Users, description: str):
+    def __init__(self, user: Users, course: Courses, description: str):
         self.user = user
+        self.course = course
         self.description = description
 
     def to_json(self):
@@ -361,7 +364,8 @@ class ReviewsSchema(Schema):
     user = fields.Nested('UsersSchema', many=False)
 
     _links = Hyperlinks(
-        {"self": URLFor("reviews.get", id="<id>"), "collection": URLFor("reviews.get_all")}
+        {"self": URLFor("courses.reviews_get", course_id="<course_id>", review_id="<id>"),
+         "collection": URLFor("courses.reviews_get_all", course_id="<course_id>")}
     )
 
 
