@@ -6,7 +6,7 @@ from application.models.models import Platforms, PlatformsSchema, db_session
 mod = Blueprint(
     'platforms',
     __name__,
-    url_prefix='/api/platforms'
+    url_prefix='/api/v1/platforms'
 )
 
 platform_schema = PlatformsSchema()

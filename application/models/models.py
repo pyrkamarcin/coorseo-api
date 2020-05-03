@@ -1,4 +1,5 @@
 import numpy as np
+from flask import current_app
 
 from flask_marshmallow.fields import Hyperlinks, URLFor
 from marshmallow import fields, Schema
@@ -43,6 +44,8 @@ class Users(Model):
 
     confirmed = Column(Boolean, nullable=False, default=False)
     confirmed_on = Column(DateTime, nullable=True)
+
+    agreements = relationship("Agreements", secondary="user_agreements")
 
     def __init__(self, email, name, password):
         self.email = email
@@ -116,7 +119,7 @@ class Courses(Model):
     publisher_id = Column(UUID(as_uuid=True), ForeignKey('publishers.publisher_id'), nullable=False)
     publisher = relationship("Publishers", backref=backref("courses", lazy="dynamic"))
 
-    tags = relationship("Tags", secondary="courses_has_tags")
+    tags = relationship("Tags", secondary="courses_tags")
 
     def __init__(self, name):
         self.name = name
@@ -408,9 +411,9 @@ class TagsSchema(Schema):
 class CoursesHasTags(Model):
     query = db_session.query_property()
 
-    __tablename__ = 'courses_has_tags'
+    __tablename__ = 'courses_tags'
 
-    id = Column('courses_has_tags_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True,
+    id = Column('courses_tags_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True,
                 nullable=False)
     tag_id = Column(UUID(as_uuid=True), ForeignKey('tags.tag_id'), unique=False)
     course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), unique=False)
@@ -418,8 +421,8 @@ class CoursesHasTags(Model):
     created_on = Column(DateTime, server_default=func.now())
     updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
 
-    course = relationship("Courses", backref="tags_courses_has_tags")
-    tag = relationship("Tags", backref="courses_courses_has_tags")
+    course = relationship("Courses", backref="tags_courses_tags")
+    tag = relationship("Tags", backref="courses_courses_tags")
 
 
 class Keywords(Model):
@@ -459,6 +462,99 @@ class KeywordsSchema(Schema):
     name = fields.String()
     created_on = fields.DateTime()
     updated_on = fields.DateTime()
+
+
+class Agreements(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'agreements'
+
+    id = Column('agreement_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+
+    title = Column(String(200), nullable=False)
+    description = Column(String(200), nullable=True)
+    body = Column(String(), nullable=True)
+    valid_from = Column(DateTime)
+    valid_to = Column(DateTime)
+    is_active = Column(Boolean, default=False)
+    is_required = Column(Boolean, default=False)
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    def __init__(self, title: str):
+        self.title = title
+
+    def to_json(self):
+        return dict(name=self.description)
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class AgreementsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+
+    title = fields.String()
+    description = fields.String()
+    body = fields.String()
+    valid_from = fields.DateTime()
+    valid_to = fields.DateTime()
+    is_active = fields.Boolean()
+    is_required = fields.Boolean()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+
+    _links = Hyperlinks(
+        {"self": URLFor("agreements.get", id="<id>"), "collection": URLFor("agreements.get_all")}
+    )
+
+
+class UserAgreements(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'user_agreements'
+
+    id = Column('user_agreements_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True,
+                nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), unique=False)
+    agreements_id = Column(UUID(as_uuid=True), ForeignKey('agreements.agreement_id'), unique=False)
+
+    is_read = Column(Boolean, default=False)
+    is_accepted = Column(Boolean, default=False)
+
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    user = relationship("Users", backref="agreements_user_agreements")
+    agreement = relationship("Agreements", backref="users_user_agreements")
+
+    def __init__(self, user: Users, agreement: Agreements, is_accepted: Boolean):
+        self.user = user
+        self.agreement = agreement
+        self.is_accepted = is_accepted
+
+
+class UserAgreementsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+
+    is_read = fields.Boolean()
+    is_accepted = fields.Boolean()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+    agreement = fields.Nested('AgreementsSchema', many=False, exclude=['_links'])
+
+    _agreement_links = Hyperlinks(
+        {"self": URLFor("agreements.get", id="<agreements_id>"), "collection": URLFor("agreements.get_all")}
+    )
 
 
 if __name__ == '__main__':

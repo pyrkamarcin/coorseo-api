@@ -16,13 +16,13 @@ from passlib.hash import sha256_crypt
 from flask import current_app
 from sqlalchemy import JSON
 
-from application.models.models import db_session, Users, UsersSchema, UserEvents
+from application.models.models import db_session, Users, UsersSchema, UserEvents, UserAgreements, Agreements, \
+    UserAgreementsSchema
 
 auth = Blueprint(
     'auth',
     __name__,
-    template_folder='templates',
-    static_folder='static'
+    url_prefix='/api/v1/user'
 )
 
 
@@ -60,6 +60,7 @@ def generate_confirmation_token(email):
 
 
 user_schema = UsersSchema()
+user_agreements_schema = UserAgreementsSchema()
 
 
 # https://flask-jwt-extended.readthedocs.io/en/stable/
@@ -247,3 +248,45 @@ def password_change(token):
     db_session.add(user)
     db_session.commit()
     return jsonify({"msg": "Password changed."}), 200
+
+
+@auth.route('/agreements', methods=['POST'])
+@jwt_required
+def add_agreements():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    agreement_id = request.json.get('agreement_id', None)
+    if not agreement_id:
+        return jsonify({"msg": "Missing parameters."}), 400
+
+    is_accepted = request.json.get('is_accepted', None)
+
+    current_user = get_jwt_identity()
+
+    user = Users.query.filter_by(name=current_user).first()
+    agreement = Agreements.query.filter_by(id=agreement_id).first()
+
+    existing_user_agreements = UserAgreements.query.filter_by(user=user, agreement=agreement).first()
+
+    if existing_user_agreements:
+        return jsonify({"msg": "User_Agreement exist."}), 400
+
+    user_agreements = UserAgreements(user=user, agreement=agreement, is_accepted=is_accepted)
+
+    user_agreements.is_read = True
+
+    db_session.add(user_agreements)
+    db_session.commit()
+    return jsonify(user_agreements_schema.dump(user_agreements))
+
+
+@auth.route('/agreements', methods=['GET'])
+@jwt_required
+def get_agreements():
+    current_user = get_jwt_identity()
+
+    user = Users.query.filter_by(name=current_user).first()
+    user_agreements = UserAgreements.query.filter_by(user=user).order_by("created_on").all()
+
+    return jsonify(user_agreements_schema.dump(user_agreements, many=True))

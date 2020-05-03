@@ -13,7 +13,7 @@ from application.models.models import Courses, CoursesSchema, db_session, Platfo
 mod = Blueprint(
     'search',
     __name__,
-    url_prefix='/api/search'
+    url_prefix='/api/v1/search'
 )
 
 es = Elasticsearch(hosts='es01:9200')
