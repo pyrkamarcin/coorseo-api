@@ -6,6 +6,280 @@
 	},
 	"item": [
 		{
+			"name": "Użytkownik",
+			"item": [
+				{
+					"name": "Rejestracja",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0734699f-c091-484d-ba35-9482ec4043a6",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "352d1d31-cfb0-4e24-8495-8233548c322c",
+								"exec": [
+									"const random_number = _.random(1000000, 2000000);",
+									"const username = \"user+\" + random_number;",
+									"const email = \"user+\" + random_number + \"@example.com\";",
+									"",
+									"pm.environment.set(\"username\", username);",
+									"pm.environment.set(\"email\", email);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email}}\",\n    \"username\": \"{{username}}\",\n    \"password\": \"Test1234!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host_name}}/api/v1/user/register",
+							"protocol": "http",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"register"
+							]
+						},
+						"description": "\t"
+					},
+					"response": []
+				},
+				{
+					"name": "Logowanie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "be864dd9-bf2e-4427-b9e0-5d72d8055823",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"access_token goes to env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});",
+									"",
+									"pm.test(\"refresh_token goes to env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"refresh_token\", jsonData.refresh_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"Test1234!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host_name}}/api/v1/user/login",
+							"protocol": "http",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Wylogowanie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b740eae3-a33b-4113-94f3-a4be6884df92",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJQUzUxMiJ9.eyJpYXQiOjE1ODc5OTM5NDYsIm5iZiI6MTU4Nzk5Mzk0NiwianRpIjoiMWZlYzZiZDAtNmNhZC00YzEzLWE0NzMtYzFmYWYyYTFlNDY4IiwiZXhwIjoxNTg3OTk0ODQ2LCJpZGVudGl0eSI6InVzZXIrMTgiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.e-qYWARNjK5NtqDXuQ0ze9G26M6v126bvdS94Sx_-fFyadJYXvWT4L7CnoR-UMMYgT6hy8yBCZdXNyyj0WIe45XCwb1_Uj-IeEH_qiF_g3x7aEUUwX4a8BxU4cYZhAFhfLnOVGE4PbD8jvQi2pH4IseZobcE7tStAJ9hks8qHoGDTVlwUym0bfKSqtujXZ-J8YvoCtqU65cpyQdLrDMPIJCl9udw3ve1gBZs6XB2CrKKRVO1yxguU03hdoVl0qIM_ETF0Yssr0WRg6ndHY9KPP12VzktV9jOB53gqQH5ebGtIjEa3GTcmc9mBHIAaopP3wCLRsiF9IVDN_cjzBCOR4CYJvedUYwyNb_aylDbpSQdrANEpJ7ZU6XmMXyj6v7_w1iUCHdLvYVi-tneKUGRtpZsg_8z4Z6Y78hBXdPrn_MxIyu--Y5AXGEvEMjVpRSzeVnb6cS1pvSRdwWy0WtoQleFttU9QqwfmrAeJo3PZllmtfGHvrq4WAS1xWynWVkDfKHh50MlM4KDJmp6tQZe8S8QzoKmbPa_ZSyF79D2lCiLpxCGhnrwTFteGYC_QKwF84eV8ms2TriS6hcMFcTSXmF5xmQ6yTZIxCHQxzUqwZCaPBzSLFNZrqcKBk0UVf9xJYjv-Evkzt-bTqMxrGCpQdcNAyqozLjzF7AsnpLIx0k",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{host_name}}/api/v1/user/logout",
+							"protocol": "http",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lista zgód",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "527f919b-5122-4567-96e4-a35f93ffb549",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host_name}}/api/v1/user/agreements",
+							"protocol": "http",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"agreements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Akceptacja zgody",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7384b702-418a-4a16-9396-a4592a8321cb",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreement_id\": \"{{agreements_id}}\",\n    \"is_accepted\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host_name}}/api/v1/user/agreements",
+							"protocol": "http",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"agreements"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "Kursy",
 			"item": [
 				{
@@ -13,6 +287,21 @@
 					"item": [
 						{
 							"name": "Dodaj ocenę",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c9238327-f6b9-4aff-aa3f-f25e8720a533",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -62,6 +351,21 @@
 					"item": [
 						{
 							"name": "Dodaj opinię",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "913fa55c-fc0b-4ea5-afcc-00de37d65914",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -111,6 +415,21 @@
 					"item": [
 						{
 							"name": "Lista słów kluczowych",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "572b9820-7e2c-420f-ad12-83df0c480ee4",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -141,6 +460,19 @@
 										"id": "bc24f102-0d68-4b26-96ee-355b91b9ebfb",
 										"exec": [
 											"pm.environment.set(\"random_number\", _.random(1000000, 2000000))",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "e108b2bd-c816-4c62-8eb5-1f07e1100d6b",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
 											""
 										],
 										"type": "text/javascript"
@@ -186,6 +518,21 @@
 					"item": [
 						{
 							"name": "Dodaj tag",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "1c2ecf6f-7851-4eac-a375-4f23c4520eae",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -222,6 +569,21 @@
 				},
 				{
 					"name": "Pokaż wszystkie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6ce7b556-2e12-482b-824d-3b08c973c52b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -243,6 +605,21 @@
 				},
 				{
 					"name": "Pokaż wybrany",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b9ff0272-2e31-4490-b815-0c3eccc6d4b7",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -318,6 +695,10 @@
 							"script": {
 								"id": "871bb3c4-2c7f-44a9-a59e-a95ebc2c6422",
 								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
 									"pm.test(\"course_id goes to env\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.environment.set(\"course_id\", jsonData.id);",
@@ -357,7 +738,7 @@
 					"response": []
 				},
 				{
-					"name": "Edytuj",
+					"name": "Edytuj kurs",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -367,7 +748,7 @@
 									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))",
 									"",
 									"const platformRequest = {",
-									"    url: 'http://'+pm.variables.get('host_name')+'/api/platforms/',",
+									"    url: 'http://'+pm.variables.get('host_name')+'/api/v1/platforms/',",
 									"    method: 'POST',",
 									"    header: 'Content-Type:application/json',",
 									"    body: {",
@@ -386,7 +767,7 @@
 									"});",
 									"",
 									"const publisherRequest = {",
-									"    url: 'http://'+pm.variables.get('host_name')+'/api/publishers/',",
+									"    url: 'http://'+pm.variables.get('host_name')+'/api/v1/publishers/',",
 									"    method: 'POST',",
 									"    header: 'Content-Type:application/json',",
 									"    body: {",
@@ -406,6 +787,19 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "87c35f68-f39c-4aa3-804a-c778bdb54e60",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -413,7 +807,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"kurs kurwa {{random_number}}\"\n}",
+							"raw": "{\n    \"name\": \"kurs jakiś nowszy {{random_number}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -421,7 +815,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/courses/30c19b3e-5607-49e2-86aa-684b62d3976c",
+							"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}",
 							"protocol": "http",
 							"host": [
 								"{{host_name}}"
@@ -430,7 +824,7 @@
 								"api",
 								"v1",
 								"courses",
-								"30c19b3e-5607-49e2-86aa-684b62d3976c"
+								"{{course_id}}"
 							]
 						}
 					},
@@ -451,6 +845,19 @@
 								"id": "f41557c6-c457-4a28-870e-1c36b419362e",
 								"exec": [
 									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c4fe8d5e-8367-44d5-9011-8e2fe03c5d8d",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -492,6 +899,21 @@
 			"item": [
 				{
 					"name": "Pokaż wszystkie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c4b839cd-89d2-4bc2-b0f3-9f42c1184280",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -529,6 +951,10 @@
 							"script": {
 								"id": "1461afb9-fe9a-4514-baac-b62fa0aa4c9e",
 								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
 									"pm.test(\"tag_id goes to env\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.environment.set(\"tag_id\", jsonData.id);",
@@ -570,231 +996,6 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "Użytkownik",
-			"item": [
-				{
-					"name": "Lista zgód",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/agreements",
-							"protocol": "http",
-							"host": [
-								"{{host_name}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"agreements"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Wylogowanie",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJQUzUxMiJ9.eyJpYXQiOjE1ODc5OTM5NDYsIm5iZiI6MTU4Nzk5Mzk0NiwianRpIjoiMWZlYzZiZDAtNmNhZC00YzEzLWE0NzMtYzFmYWYyYTFlNDY4IiwiZXhwIjoxNTg3OTk0ODQ2LCJpZGVudGl0eSI6InVzZXIrMTgiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.e-qYWARNjK5NtqDXuQ0ze9G26M6v126bvdS94Sx_-fFyadJYXvWT4L7CnoR-UMMYgT6hy8yBCZdXNyyj0WIe45XCwb1_Uj-IeEH_qiF_g3x7aEUUwX4a8BxU4cYZhAFhfLnOVGE4PbD8jvQi2pH4IseZobcE7tStAJ9hks8qHoGDTVlwUym0bfKSqtujXZ-J8YvoCtqU65cpyQdLrDMPIJCl9udw3ve1gBZs6XB2CrKKRVO1yxguU03hdoVl0qIM_ETF0Yssr0WRg6ndHY9KPP12VzktV9jOB53gqQH5ebGtIjEa3GTcmc9mBHIAaopP3wCLRsiF9IVDN_cjzBCOR4CYJvedUYwyNb_aylDbpSQdrANEpJ7ZU6XmMXyj6v7_w1iUCHdLvYVi-tneKUGRtpZsg_8z4Z6Y78hBXdPrn_MxIyu--Y5AXGEvEMjVpRSzeVnb6cS1pvSRdwWy0WtoQleFttU9QqwfmrAeJo3PZllmtfGHvrq4WAS1xWynWVkDfKHh50MlM4KDJmp6tQZe8S8QzoKmbPa_ZSyF79D2lCiLpxCGhnrwTFteGYC_QKwF84eV8ms2TriS6hcMFcTSXmF5xmQ6yTZIxCHQxzUqwZCaPBzSLFNZrqcKBk0UVf9xJYjv-Evkzt-bTqMxrGCpQdcNAyqozLjzF7AsnpLIx0k",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/logout",
-							"protocol": "http",
-							"host": [
-								"{{host_name}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"logout"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Akceptacja zgody",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"agreement_id\": \"{{last_agreements_id}}\",\n    \"is_accepted\": true\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/agreements",
-							"protocol": "http",
-							"host": [
-								"{{host_name}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"agreements"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logowanie",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "be864dd9-bf2e-4427-b9e0-5d72d8055823",
-								"exec": [
-									"pm.test(\"access_token goes to env\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.environment.set(\"access_token\", jsonData.access_token);",
-									"});",
-									"",
-									"pm.test(\"refresh_token goes to env\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.environment.set(\"refresh_token\", jsonData.refresh_token);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"Test1234!\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/login",
-							"protocol": "http",
-							"host": [
-								"{{host_name}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Rejestracja",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "0734699f-c091-484d-ba35-9482ec4043a6",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "352d1d31-cfb0-4e24-8495-8233548c322c",
-								"exec": [
-									"const random_number = _.random(1000000, 2000000);",
-									"const username = \"user+\" + random_number;",
-									"const email = \"user+\" + random_number + \"@example.com\";",
-									"",
-									"pm.environment.set(\"username\", username);",
-									"pm.environment.set(\"email\", email);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{email}}\",\n    \"username\": \"{{username}}\",\n    \"password\": \"Test1234!\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/register",
-							"protocol": "http",
-							"host": [
-								"{{host_name}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"register"
-							]
-						},
-						"description": "\t"
-					},
-					"response": []
-				}
-			],
-			"protocolProfileBehavior": {}
-		},
-		{
 			"name": "Wydawcy",
 			"item": [
 				{
@@ -806,6 +1007,19 @@
 								"id": "c6f76f41-68cb-4364-b5c5-6a631bdfff4e",
 								"exec": [
 									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "4570db76-e75f-4282-b5d6-8ef5902c32ad",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -847,6 +1061,21 @@
 			"item": [
 				{
 					"name": "Wyszukaj",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "623c10b8-05d1-4895-ba55-ecfe614b7578",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -883,6 +1112,21 @@
 			"item": [
 				{
 					"name": "Pokaż wszystkie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1cbe8b3-44c3-4f6e-aae7-3f63b4edc0aa",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -929,9 +1173,13 @@
 							"script": {
 								"id": "1e4472d3-4695-453d-a51a-4506743846a9",
 								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
 									"pm.test(\"save agreements id in env\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.environment.set(\"last_agreements_id\", jsonData.id);",
+									"    pm.environment.set(\"agreements_id\", jsonData.id);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -993,6 +1241,10 @@
 							"script": {
 								"id": "e8661a20-bde1-46fc-843e-85c50f4d50ab",
 								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
 									"pm.test(\"save agreements id in env\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.environment.set(\"last_agreements_id\", jsonData.id);",
@@ -1015,7 +1267,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/agreements/76fddf28-3e04-4642-a833-857813621de4",
+							"raw": "http://{{host_name}}/api/v1/agreements/{{agreements_id}}",
 							"protocol": "http",
 							"host": [
 								"{{host_name}}"
@@ -1024,7 +1276,7 @@
 								"api",
 								"v1",
 								"agreements",
-								"76fddf28-3e04-4642-a833-857813621de4"
+								"{{agreements_id}}"
 							]
 						}
 					},
