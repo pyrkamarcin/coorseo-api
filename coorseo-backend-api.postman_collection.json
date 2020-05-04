@@ -568,6 +568,45 @@
 					"_postman_isSubFolder": true
 				},
 				{
+					"name": "Wydania",
+					"item": [
+						{
+							"name": "Dodaj wydanie do kursu",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test\",\n    \"description\": \"test\",\n    \"release_type_id\": \"81bd1e42-2aa9-43a7-887d-50529a5b184e\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}/releases/",
+									"protocol": "http",
+									"host": [
+										"{{host_name}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"courses",
+										"{{course_id}}",
+										"releases",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
 					"name": "Pokaż wszystkie",
 					"event": [
 						{
@@ -986,6 +1025,75 @@
 								"api",
 								"v1",
 								"tags",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Typy wydań",
+			"item": [
+				{
+					"name": "Lista wszystkich",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host_name}}/api/v1/release_types/",
+							"protocol": "http",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"release_types",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dodaj",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "8056f129-7eda-4e2c-a9dc-270922771e05",
+								"exec": [
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"typ {{random_number}}\",\n    \"description\": \"super typ, podobny do kursy stacjonarnego, ale lepszy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host_name}}/api/v1/release_types/",
+							"protocol": "http",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"release_types",
 								""
 							]
 						}
