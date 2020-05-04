@@ -159,7 +159,9 @@ class CoursesSchema(Schema):
     reviews_count = fields.Function(lambda obj: len(obj.reviews))
 
     tags = fields.Nested('TagsSchema', many=True)
+
     keywords = fields.Nested('KeywordsSchema', many=True)
+    releases = fields.Nested('ReleasesSchema', many=True)
 
     _links = Hyperlinks(
         {"self": URLFor("courses.get", id="<id>"), "collection": URLFor("courses.get_all")}
@@ -195,6 +197,90 @@ class CoursesSearchSchema(Schema):
 
     tags = fields.Nested('TagsSchema', many=True, only=['name'])
     keywords = fields.Nested('KeywordsSchema', many=True)
+
+
+class ReleaseTypes(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'release_types'
+
+    id = Column('release_type_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True,
+                nullable=False)
+
+    name = Column(String(200), nullable=False)
+    description = Column(String(2000), nullable=False)
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    def __init__(self, name: str, description: str):
+        self.name = name
+        self.description = description
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class ReleaseTypesSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+
+    name = fields.String()
+    description = fields.String()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+
+    _links = Hyperlinks(
+        {"self": URLFor("release_types.get", id="<id>"), "collection": URLFor("release_types.get_all")}
+    )
+
+
+class Releases(Model):
+    query = db_session.query_property()
+
+    __tablename__ = 'releases'
+
+    id = Column('release_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+
+    name = Column(String(200), nullable=False)
+    description = Column(String(2000), nullable=False)
+    created_on = Column(DateTime, server_default=func.now())
+    updated_on = Column(DateTime, server_default=func.now(), server_onupdate=func.now())
+
+    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.course_id'), nullable=False)
+    course = relationship('Courses', backref='releases', lazy=True)
+
+    release_type_id = Column(UUID(as_uuid=True), ForeignKey('release_types.release_type_id'), nullable=False)
+    release_type = relationship("ReleaseTypes", backref=backref("release", lazy="dynamic"))
+
+    def __init__(self, name: str, description: str, release_type: ReleaseTypes):
+        self.name = name
+        self.description = description
+        self.release_type = release_type
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class ReleasesSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.UUID()
+
+    name = fields.String()
+    description = fields.String()
+    created_on = fields.DateTime()
+    updated_on = fields.DateTime()
+
+    release_type = fields.Nested('ReleaseTypesSchema')
 
 
 class Platforms(Model):

@@ -10,7 +10,7 @@ from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
 from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings, Keywords, KeywordsSchema, \
-    Tags, CoursesSearchSchema, RatingsSchema, Users, ReviewsSchema, Reviews
+    Tags, CoursesSearchSchema, RatingsSchema, Users, ReviewsSchema, Reviews, Releases, ReleasesSchema, ReleaseTypes
 
 mod = Blueprint(
     'courses',
@@ -33,6 +33,9 @@ ratings_schema = RatingsSchema(many=True)
 
 review_schema = ReviewsSchema()
 reviews_schema = ReviewsSchema(many=True)
+
+release_schema = ReleasesSchema()
+releases_schema = ReleasesSchema(many=True)
 
 
 @mod.route('/', methods=['GET'])
@@ -215,3 +218,24 @@ def reviews_delete(course_id, review_id):
     db_session.delete(Reviews.query.get(review_id))
     db_session.commit()
     return jsonify({'result': True})
+
+
+@mod.route('/<uuid:course_id>/releases/', methods=['POST'])
+def releases_create(course_id):
+    course = Courses.query.get(course_id)
+
+    name = request.json['name']
+    description = request.json['description']
+    release_type_id = request.json['release_type_id']
+
+    release_type = ReleaseTypes.query.get(release_type_id)
+    release = Releases(name, description, release_type)
+    course.releases.append(release)
+
+    course.updated_on = func.now()
+
+    db_session.commit()
+
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+
+    return release_schema.dump(release)
