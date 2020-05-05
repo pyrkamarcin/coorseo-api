@@ -1,8 +1,6 @@
 from flask import Blueprint, request, jsonify, abort
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt_claims
-from sqlalchemy import func
 
-from application.models.models import Ratings, RatingsSchema, db_session, Users, ReleaseTypesSchema, ReleaseTypes
+from application.models.models import db_session, ReleaseTypesSchema, ReleaseTypes
 
 mod = Blueprint(
     'release_types',

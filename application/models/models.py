@@ -1,10 +1,9 @@
 import numpy as np
-from flask import current_app
 
 from flask_marshmallow.fields import Hyperlinks, URLFor
 from marshmallow import fields, Schema
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
-    ForeignKey, func, Boolean, JSON, Table
+    ForeignKey, func, Boolean, JSON
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID

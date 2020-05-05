@@ -24,6 +24,7 @@ Flask-Mail
 python-dotenv
 pycrypto
 cryptography
+flask-jsonschema-validator
 
 elasticsearch # ?
 Flask-Elasticsearch # ? https://pypi.org/project/Flask-Elasticsearch/
