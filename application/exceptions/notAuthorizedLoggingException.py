@@ -1,4 +1,4 @@
-from application.models.models import Users
+from application.models.users import Users
 
 
 class NotAuthorizedLoggingException(Exception):

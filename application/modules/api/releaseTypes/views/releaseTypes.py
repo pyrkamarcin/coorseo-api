@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify, abort
 
-from application.models.models import db_session, ReleaseTypesSchema, ReleaseTypes
+from application.models.releaseTypesSchema import ReleaseTypesSchema
+from application.models.releaseTypes import ReleaseTypes
+
+from application.shared.models import db_session
 
 mod = Blueprint(
     'release_types',

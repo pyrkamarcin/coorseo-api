@@ -1,20 +1,31 @@
 # coorseo-api
 
-## Pierwsze uruchomienie
+## Użycie `docker-compose`
 
-### Użycie `docker-compose`
+### Pierwsze uruchomienie
 
-1. Pobranie obrazów:
+#### Pobranie obrazów:
+
 ```bash
 docker-compose pull
 ```
 
-2. Uruchomienie usług:
+#### Uruchomienie usług:
+
 ```bash
 docker-compose up -d
 ```
 
-3. Inicjalizacja struktury bazy danych:
+#### Inicjalizacja struktury bazy danych:
+
 ```bash
-docker-compose exec application python application/models/models.py
+docker-compose exec application python setup.py
+```
+
+### Usunięcie danych aplikacji
+
+#### Zatrzymanie i usunięcie dysków:
+
+```bash
+docker-compose down -v
 ```

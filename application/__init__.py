@@ -1,40 +1,46 @@
 from __future__ import absolute_import, print_function
 
-import smtplib
-import datetime
-import threading
-
-import jsonschema
-from elasticsearch import Elasticsearch
-from flask import (Flask)
-from flask_jsonschema_validator import JSONSchemaValidator, JSONSchemaValidatorException
+from flask import (Flask, g)
 from flask_jwt_extended import JWTManager, jwt_required, get_raw_jwt
-from flask_mail import Mail
 from flask_uuid import FlaskUUID
 
-from flask import request, jsonify, url_for
-from flask_jwt_extended import (get_jwt_identity, create_refresh_token, jwt_refresh_token_required, create_access_token)
-from itsdangerous import TimedJSONWebSignatureSerializer
-from passlib.hash import sha256_crypt
+from flask import jsonify
 
-from application.models.models import db_session, Users, UsersSchema, UserEvents
+import numpy as np
 
-from application.views import auth
-from application.views import home
-from application.views import courses
-from application.views import platforms
-from application.views import publishers
-from application.views import profile
-from application.views import releaseTypes
-from application.views import search
-from application.views import tags
-from application.views import agreements
+from flask_marshmallow.fields import Hyperlinks, URLFor
+from marshmallow import fields, Schema
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
+    ForeignKey, func, Boolean, JSON
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import UUID
+
+from application.models.usersSchema import UsersSchema
+from application.models.userEvents import UserEvents
+
+from application.models.users import Users
+
+from application.modules.home.views import home
+from application.modules.profile.views import profile
+
+from application.modules.api.agreements.views import agreements
+from application.modules.api.auth.views import auth
+from application.modules.api.courses.views import courses
+from application.modules.api.platforms.views import platforms
+from application.modules.api.publishers.views import publishers
+from application.modules.api.releaseTypes.views import releaseTypes
+from application.modules.api.search.views import search
+from application.modules.api.tags.views import tags
+
+from application.shared.models import db_session
 
 
 def create_app():
     app = Flask(__name__, static_url_path='/static')
 
     app.config.from_object('application.config.Config')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     with app.app_context():
         jwt = JWTManager(app)

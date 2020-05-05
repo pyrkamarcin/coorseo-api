@@ -9,8 +9,24 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
-from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings, Keywords, KeywordsSchema, \
-    Tags, CoursesSearchSchema, RatingsSchema, Users, ReviewsSchema, Reviews, Releases, ReleasesSchema, ReleaseTypes
+from application.shared.models import db_session
+
+from application.models.courses import Courses
+from application.models.coursesSchema import CoursesSchema
+from application.models.platforms import Platforms
+from application.models.ratings import Ratings
+from application.models.keywords import Keywords
+from application.models.keywordsSchema import KeywordsSchema
+from application.models.tags import Tags
+from application.models.coursesSearchSchema import CoursesSearchSchema
+from application.models.ratingsSchema import RatingsSchema
+from application.models.reviewsSchema import ReviewsSchema
+from application.models.reviews import Reviews
+from application.models.releases import Releases
+from application.models.releasesSchema import ReleasesSchema
+from application.models.releaseTypes import ReleaseTypes
+
+from application.models.users import Users
 
 mod = Blueprint(
     'courses',
