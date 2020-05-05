@@ -20,8 +20,15 @@ from application.exceptions.userIsConfirmedException import UserIsConfirmedExcep
 from application.exceptions.userIsNotConfirmedException import UserIsNotConfirmedException
 from application.exceptions.userNotExistException import UserNotExistException
 
-from application.models.models import db_session, Users, UsersSchema, UserEvents, UserAgreements, Agreements, \
-    UserAgreementsSchema
+from application.shared.models import db_session
+from application.models.usersSchema import UsersSchema
+
+from application.models.userEvents import UserEvents
+from application.models.userAgreements import UserAgreements
+from application.models.agreements import Agreements
+from application.models.userAgreementsSchema import UserAgreementsSchema
+
+from application.models.users import Users
 
 auth = Blueprint(
     'auth',

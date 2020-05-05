@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify, abort
 from sqlalchemy import func
 
-from application.models.models import Tags, TagsSchema, db_session
+from application.models.tags import Tags
+from application.models.tagsSchema import TagsSchema
+from application.shared.models import db_session
 
 mod = Blueprint(
     'tags',

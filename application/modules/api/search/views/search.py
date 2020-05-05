@@ -8,7 +8,12 @@ from sqlalchemy import func
 from sqlalchemy.orm.strategy_options import lazyload, joinedload
 import uuid
 
-from application.models.models import Courses, CoursesSchema, db_session, Platforms, Ratings
+from application.models.courses import Courses
+from application.models.coursesSchema import CoursesSchema
+from application.models.platforms import Platforms
+from application.models.ratings import Ratings
+
+from application.shared.models import db_session
 
 mod = Blueprint(
     'search',
