@@ -39,7 +39,6 @@ def post():
     return agreement_schema.dump(agreement)
 
 
-
 @mod.route('/<uuid:id>', methods=['PUT'])
 def update(id):
     agreement = Agreements.query.get(id)

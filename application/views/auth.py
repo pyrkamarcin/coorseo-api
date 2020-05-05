@@ -1,20 +1,24 @@
-from flask import Blueprint, render_template, session, redirect, url_for, request, flash, g, jsonify, abort, json
+from flask import Blueprint
 import smtplib
 import datetime
 import threading
 
-from flask import (Flask)
-from flask_jwt_extended import JWTManager, jwt_required, get_raw_jwt
-from flask_mail import Mail
-from flask_uuid import FlaskUUID
+from flask_jwt_extended import jwt_required
 
 from flask import request, jsonify, url_for
 from flask_jwt_extended import (get_jwt_identity, create_refresh_token, jwt_refresh_token_required, create_access_token)
 from itsdangerous import TimedJSONWebSignatureSerializer
 from passlib.hash import sha256_crypt
 
-from flask import current_app
-from sqlalchemy import JSON
+from application.exceptions.createdRelationExistException import CreatedRelationExistException
+from application.exceptions.invalidTokenException import InvalidTokenException
+from application.exceptions.missingParametersException import MissingParametersException
+from application.exceptions.notAuthorizedLoggingException import NotAuthorizedLoggingException
+from application.exceptions.notValidRequestException import NotValidRequestException
+from application.exceptions.userExistException import UserExistException
+from application.exceptions.userIsConfirmedException import UserIsConfirmedException
+from application.exceptions.userIsNotConfirmedException import UserIsNotConfirmedException
+from application.exceptions.userNotExistException import UserNotExistException
 
 from application.models.models import db_session, Users, UsersSchema, UserEvents, UserAgreements, Agreements, \
     UserAgreementsSchema
@@ -53,7 +57,6 @@ def send_email(to, confirm_url):
     return thr
 
 
-# https://www.programcreek.com/python/example/101081/itsdangerous.URLSafeTimedSerializer
 def generate_confirmation_token(email):
     serializer = TimedJSONWebSignatureSerializer('SECRET_KEY')
     return serializer.dumps(email, salt='SECURITY_PASSWORD_SALT')
@@ -63,27 +66,74 @@ user_schema = UsersSchema()
 user_agreements_schema = UserAgreementsSchema()
 
 
+@auth.errorhandler(UserExistException)
+def user_exist_exception(e):
+    return jsonify({"message": e.message}), 400
+
+
+@auth.errorhandler(MissingParametersException)
+def missing_parameters_exception(e):
+    return jsonify({"message": e.message}), 422
+
+
+@auth.errorhandler(NotAuthorizedLoggingException)
+def not_authorized_logging_exception(e):
+    user = Users.query.filter_by(id=e.user.id).first()
+    user_event = UserEvents(user, "not authorized logging", dict(request.headers))
+    db_session.add(user_event)
+    db_session.commit()
+
+    return jsonify({"message": e.message}), 403
+
+
+@auth.errorhandler(InvalidTokenException)
+def not_valid_token_exception(e):
+    return jsonify({"message": e.message}), 406
+
+
+@auth.errorhandler(NotValidRequestException)
+def not_valid_request_exception(e):
+    return jsonify({"message": e.message}), 400
+
+
+@auth.errorhandler(UserIsNotConfirmedException)
+def user_is_not_confirmed_exception(e):
+    user = Users.query.filter_by(id=e.user.id).first()
+    user_event = UserEvents(user, "not confirmed logging", dict(request.headers))
+    db_session.add(user_event)
+    db_session.commit()
+
+    return jsonify({"message": e.message}), 403
+
+
+@auth.errorhandler(UserNotExistException)
+def user_not_exist_exception(e):
+    return jsonify({"message": e.message}), 400
+
+
+@auth.errorhandler(CreatedRelationExistException)
+def created_relation_exist_exception(e):
+    return jsonify({"message": e.message}), 400
+
+
 # https://flask-jwt-extended.readthedocs.io/en/stable/
+# https://www.programcreek.com/python/example/101081/itsdangerous.URLSafeTimedSerializer
+
 
 @auth.route('/login', methods=['POST'])
 def login():
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+        raise NotValidRequestException("POST doesn't have JSON payload.")
 
     username = request.json.get('username', None)
     password = request.json.get('password', None)
-    if not username:
-        return jsonify({"msg": "Missing parameters."}), 400
-    if not password:
-        return jsonify({"msg": "Missing parameters."}), 400
+    if not username or not password:
+        raise MissingParametersException("Missing username or password")
 
     user = Users.query.filter_by(name=username).first()
 
     if user and not user.confirmed:
-        user_event = UserEvents(user, "not confirmed logging", dict(request.headers))
-        db_session.add(user_event)
-        db_session.commit()
-        return jsonify({"msg": "User is not confirmed."}), 406
+        raise UserIsNotConfirmedException("User is not confirmed", user)
 
     if sha256_crypt.verify(password, user.password):
 
@@ -91,52 +141,48 @@ def login():
         db_session.add(user_event)
 
         # https://flask-jwt-extended.readthedocs.io/en/stable/add_custom_data_claims/
-        ret = {
-            'id': user.id,
-            'access_token': create_access_token(identity=username),
-            'refresh_token': create_refresh_token(identity=username)
-        }
+        access_token = create_access_token(identity=username)
+        refresh_token = create_refresh_token(identity=username)
 
         user_event = UserEvents(user, "generated tokens",
-                                {"access_token": ret.get("access_token"), "refresh_token": ret.get("refresh_token")})
+                                {"access_token": access_token, "refresh_token": refresh_token})
         db_session.add(user_event)
         db_session.commit()
-        return jsonify(ret), 200
+        return jsonify(
+            {
+                'id': user.id,
+                'access_token': access_token,
+                'refresh_token': refresh_token
+            }
+        ), 200
     else:
-        user_event = UserEvents(user, "not authorized logging", dict(request.headers))
-        db_session.add(user_event)
-        db_session.commit()
-        return jsonify({"msg": "User is not authorized or not exist."}), 406
+        raise NotAuthorizedLoggingException("User is not authorized or not exist.", user)
 
 
 @auth.route('/refresh', methods=['POST'])
 @jwt_refresh_token_required
 def refresh():
-    current_user = get_jwt_identity()
-    ret = {
-        'access_token': create_access_token(identity=current_user)
-    }
-    return jsonify(ret), 200
+    return jsonify({'access_token': create_access_token(identity=get_jwt_identity())}), 200
 
 
 @auth.route('/register', methods=['POST'])
 def register():
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+        raise NotValidRequestException("POST doesn't have JSON payload.")
 
     email = request.json.get('email', None)
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     if not email:
-        return jsonify({"msg": "Missing parameters."}), 400
+        raise MissingParametersException("Missing email.")
     if not username:
-        return jsonify({"msg": "Missing parameters."}), 400
+        raise MissingParametersException("Missing username.")
     if not password:
-        return jsonify({"msg": "Missing parameters."}), 400
+        raise MissingParametersException("Missing password.")
 
     user = Users.query.filter_by(name=username).first()
     if user:
-        return jsonify({"msg": "User exist."}), 406
+        raise UserExistException("User exist.")
 
     user = Users(email=email, name=username, password=password)
 
@@ -162,19 +208,19 @@ def register():
 @auth.route('/resend_confirmation', methods=['POST'])
 def resend_confirmation():
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+        raise NotValidRequestException("POST doesn't have payload.")
 
     email = request.json.get('email', None)
     username = request.json.get('username', None)
     if not email:
-        return jsonify({"msg": "Missing parameters."}), 400
+        raise MissingParametersException("Missing email.")
     if not username:
-        return jsonify({"msg": "Missing parameters."}), 400
+        raise MissingParametersException("Missing username.")
 
     user = Users.query.filter_by(name=username, email=email).first()
 
     if user and user.confirmed:
-        return jsonify({"msg": "User is confirmed."}), 406
+        raise UserIsConfirmedException("User is confirmed", user)
 
     token = generate_confirmation_token(user.email)
 
@@ -208,7 +254,7 @@ def confirmation(token):
 @auth.route('/password', methods=['POST'])
 def password_request():
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+        raise NotValidRequestException("POST doesn't have JSON payload.")
 
     email = request.json.get('email', None)
 
@@ -230,19 +276,19 @@ def password_request():
 @auth.route('/password/<token>', methods=['POST'])
 def password_change(token):
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+        raise NotValidRequestException("POST doesn't have JSON payload.")
 
     new_password = request.json.get('password', None)
 
     try:
         email = email_from_confirm_token(token)
     except:
-        return jsonify({"msg": "Token is not valid."}), 406
+        raise InvalidTokenException("URL Token is not valid.")
 
     user = Users.query.filter_by(email=email).first()
 
     if user and not user.confirmed:
-        return jsonify({"msg": "User is not confirmed."}), 406
+        raise UserIsNotConfirmedException("User is not confirmed", user)
 
     user.password = sha256_crypt.encrypt(new_password)
     db_session.add(user)
@@ -254,11 +300,11 @@ def password_change(token):
 @jwt_required
 def add_agreements():
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+        raise NotValidRequestException("POST doesn't have JSON payload.")
 
     agreement_id = request.json.get('agreement_id', None)
     if not agreement_id:
-        return jsonify({"msg": "Missing parameters."}), 400
+        raise MissingParametersException("Missing agreement_id.")
 
     is_accepted = request.json.get('is_accepted', None)
 
@@ -270,10 +316,9 @@ def add_agreements():
     existing_user_agreements = UserAgreements.query.filter_by(user=user, agreement=agreement).first()
 
     if existing_user_agreements:
-        return jsonify({"msg": "User_Agreement exist."}), 400
+        raise CreatedRelationExistException("User has Agreement relation exist.")
 
     user_agreements = UserAgreements(user=user, agreement=agreement, is_accepted=is_accepted)
-
     user_agreements.is_read = True
 
     db_session.add(user_agreements)
