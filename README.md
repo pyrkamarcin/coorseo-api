@@ -29,3 +29,7 @@ docker-compose exec application python setup.py
 ```bash
 docker-compose down -v
 ```
+
+
+## TechDept
+
