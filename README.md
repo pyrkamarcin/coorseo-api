@@ -33,3 +33,6 @@ docker-compose down -v
 
 ## TechDept
 
+## Linki
+
+[Przykład zastosowania PyKafka](https://github.com/code-and-dogs/liveMaps/blob/master/busdata1.py)
