@@ -1218,7 +1218,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"keyword\": \"kurs kurwa\"\n}",
+							"raw": "{\n    \"keyword\": \"kurs\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
