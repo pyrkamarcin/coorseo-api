@@ -57,7 +57,6 @@ releases_schema = ReleasesSchema(many=True)
 @mod.route('/', methods=['GET'])
 def get_all():
     return jsonify(courses_schema.dump(Courses.query.options().all()))
-    # return jsonify(courses_schema.dump(Courses.query.join(Ratings, isouter=True).group_by(Courses.id).options().all()))
 
 
 @mod.route('/<uuid:id>', methods=['GET'])
@@ -85,6 +84,15 @@ def post():
     # https://github.com/seek-ai/esengine
     # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvi-full-text-search
     es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+
+    # from flask import current_app
+    #
+    # message = json.dumps(json.dumps(course_search_schema.dump(course)))
+    #
+    # current_app.logger.info(current_app.topic.__dict__)
+    #
+    # with current_app.topic.get_producer() as producer:
+    #     producer.produce(message.encode('ascii'))
 
     return course_schema.dump(course)
 

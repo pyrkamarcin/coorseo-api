@@ -31,6 +31,8 @@ Flask-Elasticsearch # ? https://pypi.org/project/Flask-Elasticsearch/
 
 flask_swagger_ui
 
+pykafka
+
 # Testing
 pytest
 WebTest

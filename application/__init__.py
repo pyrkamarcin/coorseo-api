@@ -10,6 +10,7 @@ import numpy as np
 
 from flask_marshmallow.fields import Hyperlinks, URLFor
 from marshmallow import fields, Schema
+from pykafka import KafkaClient
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, \
     ForeignKey, func, Boolean, JSON
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
@@ -41,6 +42,9 @@ def create_app():
 
     app.config.from_object('application.config.Config')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # client = KafkaClient(hosts="kafka1:19092")
+    # app.topic = client.topics['example_topic']
 
     with app.app_context():
         jwt = JWTManager(app)
