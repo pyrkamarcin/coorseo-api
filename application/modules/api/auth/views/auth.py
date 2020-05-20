@@ -110,12 +110,22 @@ def user_is_not_confirmed_exception(e):
     db_session.add(user_event)
     db_session.commit()
 
+    return jsonify({"message": e.message}),
+
+
+@auth.errorhandler(UserIsConfirmedException)
+def user_is_confirmed_exception(e):
+    user = Users.query.filter_by(id=e.user.id).first()
+    user_event = UserEvents(user, "confirmed user try another confirmation", dict(request.headers))
+    db_session.add(user_event)
+    db_session.commit()
+
     return jsonify({"message": e.message}), 403
 
 
 @auth.errorhandler(UserNotExistException)
 def user_not_exist_exception(e):
-    return jsonify({"message": e.message}), 400
+    return jsonify({"message": e.message}), 406
 
 
 @auth.errorhandler(CreatedRelationExistException)
@@ -138,6 +148,9 @@ def login():
         raise MissingParametersException("Missing username or password")
 
     user = Users.query.filter_by(name=username).first()
+
+    if not user:
+        raise UserNotExistException("User do not exist.")
 
     if user and not user.confirmed:
         raise UserIsNotConfirmedException("User is not confirmed", user)
@@ -202,7 +215,8 @@ def register():
 
     token = generate_confirmation_token(user.email)
 
-    confirm_url = url_for('auth.confirmation', token=token, _external=True)
+    # confirm_url = url_for('auth.confirmation', token=token, _external=True)
+    confirm_url = 'http://localhost:8081/register/confirmation?token=' + token.decode("utf-8")
     send_email(user.email, confirm_url)
 
     user_event = UserEvents(user, "confirmation email sender")
@@ -231,7 +245,8 @@ def resend_confirmation():
 
     token = generate_confirmation_token(user.email)
 
-    confirm_url = url_for('auth.confirmation', token=token, _external=True)
+    # confirm_url = url_for('auth.confirmation', token=token, _external=True)
+    confirm_url = 'http://localhost:8081/register/confirmation?token=' + token.decode("utf-8")
     send_email(user.email, confirm_url)
 
     user_event = UserEvents(user, "confirmation email sender again")
@@ -246,10 +261,13 @@ def confirmation(token):
     try:
         email = email_from_confirm_token(token)
     except:
-        return jsonify({"msg": "Damn it!"}), 406
+        raise InvalidTokenException("URL Token is not valid.")
+
+    print(email)
+
     user = Users.query.filter_by(email=email).first()
     if user.confirmed:
-        return jsonify({"msg": "Damn it!"}), 406
+        raise UserIsConfirmedException("User is confirmed", user)
     else:
         user.confirmed = True
         user.confirmed_on = datetime.datetime.now()
@@ -271,7 +289,8 @@ def password_request():
 
     token = generate_confirmation_token(user.email)
 
-    confirm_url = url_for('auth.password_change', token=token, _external=True)
+    confirm_url = 'http://localhost:8081/register/confirmation' + token.decode("utf-8")
+    # confirm_url = url_for('auth.password_change', token=token, _external=True)
     send_email(user.email, confirm_url)
 
     user_event = UserEvents(user, "password_change email sender")
