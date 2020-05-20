@@ -16,7 +16,7 @@ class Agreements(model):
     id = Column('agreement_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
 
     title = Column(String(200), nullable=False)
-    description = Column(String(200), nullable=True)
+    description = Column(String(64000), nullable=True)
     body = Column(String(), nullable=True)
     valid_from = Column(DateTime)
     valid_to = Column(DateTime)

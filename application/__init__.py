@@ -6,6 +6,8 @@ from flask_uuid import FlaskUUID
 
 from flask import jsonify
 
+from flask_cors import CORS
+
 import numpy as np
 
 from flask_marshmallow.fields import Hyperlinks, URLFor
@@ -45,6 +47,8 @@ def create_app():
 
     # client = KafkaClient(hosts="kafka1:19092")
     # app.topic = client.topics['example_topic']
+
+    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     with app.app_context():
         jwt = JWTManager(app)
