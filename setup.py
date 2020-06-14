@@ -2,6 +2,8 @@ from flask import Flask
 from sqlalchemy.ext.declarative import declarative_base
 from flask_sqlalchemy import SQLAlchemy
 
+import os
+
 from application.models.agreements import Agreements
 from application.models.courses import Courses
 from application.models.coursesHasTags import CoursesHasTags
@@ -21,7 +23,7 @@ db = SQLAlchemy()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://user:password@db:5432/coorseo"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 from application.shared.models import model, engine, db_session
