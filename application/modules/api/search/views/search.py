@@ -1,4 +1,4 @@
-import json
+import json, os
 
 from elasticsearch import Elasticsearch
 from flask import Blueprint, request, jsonify, abort, make_response
@@ -21,7 +21,7 @@ mod = Blueprint(
     url_prefix='/api/v1/search'
 )
 
-es = Elasticsearch(hosts='es01:9200')
+es = Elasticsearch(hosts=os.environ.get('ES_HOST'))
 
 course_schema = CoursesSchema()
 courses_schema = CoursesSchema(many=True)
