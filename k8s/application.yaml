@@ -18,6 +18,8 @@ spec:
       labels:
         name: application
     spec:
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: application
           image: docker.io/coorseoadmin/coorseo:develop

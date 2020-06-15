@@ -100,6 +100,8 @@ spec:
           securityContext:
             runAsUser: 1001
           env:
+            - name: POSTGRESQL_DATABASE
+              value: coorseo
             - name: BITNAMI_DEBUG
               value: "false"
             - name: POSTGRESQL_PORT_NUMBER

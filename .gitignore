@@ -3,5 +3,4 @@ venv/
 views/__pycache__/
 __pycache__/
 .env
-/migrations/
 /zk-single-kafka-single/

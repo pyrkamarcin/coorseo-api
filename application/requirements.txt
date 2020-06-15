@@ -26,6 +26,7 @@ pycrypto
 cryptography
 flask-jsonschema-validator
 flask_cors
+flask_script
 
 elasticsearch # ?
 Flask-Elasticsearch # ? https://pypi.org/project/Flask-Elasticsearch/
