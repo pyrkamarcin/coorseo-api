@@ -20,6 +20,21 @@ spec:
     spec:
       imagePullSecrets:
         - name: regcred
+      initContainers:
+        - name: init-db
+          image: docker.io/bitnami/postgresql:11.8.0-debian-10-r5
+          command:
+            [
+              "sh",
+              "-c",
+              'until pg_isready -h postgresql -d coorseo -U postgres -p 5432; do echo waiting for postgres; sleep 2; done;',
+            ]
+#        - name: init-db-structure
+#          image: docker.io/coorseoadmin/coorseo:develop
+#          env:
+#            - name: SQLALCHEMY_DATABASE_URI
+#              value: postgresql+psycopg2://postgres:EDqFPatXr6@postgresql:5432/coorseo
+#          command: ["python3.8", "/coorseo-api/migration.py", "db", "upgrade"]
       containers:
         - name: application
           image: docker.io/coorseoadmin/coorseo:develop
