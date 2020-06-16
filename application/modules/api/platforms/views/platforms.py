@@ -1,12 +1,15 @@
 from flask import Blueprint, request, jsonify, abort
 from sqlalchemy import func
 
-from application.models.models import Platforms, PlatformsSchema, db_session
+from application.models.platforms import Platforms
+from application.models.platformsSchema import PlatformsSchema
+
+from application.shared.models import db_session
 
 mod = Blueprint(
     'platforms',
     __name__,
-    url_prefix='/api/platforms'
+    url_prefix='/api/v1/platforms'
 )
 
 platform_schema = PlatformsSchema()
