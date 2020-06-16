@@ -48,7 +48,7 @@ def create_app():
     # client = KafkaClient(hosts="kafka1:19092")
     # app.topic = client.topics['example_topic']
 
-    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app)
 
     with app.app_context():
         jwt = JWTManager(app)

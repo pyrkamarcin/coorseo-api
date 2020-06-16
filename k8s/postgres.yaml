@@ -157,7 +157,7 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: 1Gi
+            sizeLimit: 1G
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -166,4 +166,4 @@ spec:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: "8Gi"
+            storage: "8G"

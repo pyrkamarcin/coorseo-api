@@ -1,0 +1,77 @@
+---
+# Source: mailhog/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailhog
+  labels:
+    app.kubernetes.io/name: mailhog
+    helm.sh/chart: mailhog-3.2.0
+    app.kubernetes.io/instance: mailhog
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: "ClusterIP"
+  ports:
+    - name: http
+      port: 8025
+      protocol: TCP
+      targetPort: http
+    - name: smtp
+      port: 1025
+      protocol: TCP
+      targetPort: smtp
+  selector:
+    app.kubernetes.io/name: mailhog
+    app.kubernetes.io/instance: mailhog
+---
+# Source: mailhog/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailhog
+  labels:
+    app.kubernetes.io/name: mailhog
+    helm.sh/chart: mailhog-3.2.0
+    app.kubernetes.io/instance: mailhog
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mailhog
+      app.kubernetes.io/instance: mailhog
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mailhog
+        app.kubernetes.io/instance: mailhog
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: mailhog
+          image: "mailhog/mailhog:v1.0.0"
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: MH_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: http
+              containerPort: 8025
+              protocol: TCP
+            - name: smtp
+              containerPort: 1025
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: smtp
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+          readinessProbe:
+            tcpSocket:
+              port: smtp
+          resources:
+            {}
