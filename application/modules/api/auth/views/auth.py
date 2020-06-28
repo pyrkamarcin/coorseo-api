@@ -170,7 +170,6 @@ def login():
         db_session.commit()
         return jsonify(
             {
-                'id': user.id,
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }
@@ -182,7 +181,14 @@ def login():
 @auth.route('/refresh', methods=['POST'])
 @jwt_refresh_token_required
 def refresh():
-    return jsonify({'access_token': create_access_token(identity=get_jwt_identity())}), 200
+    access_token = create_access_token(identity=get_jwt_identity())
+    refresh_token = create_refresh_token(identity=get_jwt_identity())
+    return jsonify(
+        {
+            'access_token': access_token,
+            'refresh_token': refresh_token
+        }
+    ), 200
 
 
 @auth.route('/register', methods=['POST'])
@@ -216,7 +222,7 @@ def register():
     token = generate_confirmation_token(user.email)
 
     # confirm_url = url_for('auth.confirmation', token=token, _external=True)
-    confirm_url = 'http://localhost:8081/register/confirmation?token=' + token.decode("utf-8")
+    confirm_url = 'http://localhost/register/confirmation?token=' + token.decode("utf-8")
     send_email(user.email, confirm_url)
 
     user_event = UserEvents(user, "confirmation email sender")
@@ -246,7 +252,7 @@ def resend_confirmation():
     token = generate_confirmation_token(user.email)
 
     # confirm_url = url_for('auth.confirmation', token=token, _external=True)
-    confirm_url = 'http://localhost:8081/register/confirmation?token=' + token.decode("utf-8")
+    confirm_url = 'http://localhost/register/confirmation?token=' + token.decode("utf-8")
     send_email(user.email, confirm_url)
 
     user_event = UserEvents(user, "confirmation email sender again")
@@ -289,7 +295,7 @@ def password_request():
 
     token = generate_confirmation_token(user.email)
 
-    confirm_url = 'http://localhost:8081/register/confirmation' + token.decode("utf-8")
+    confirm_url = 'http://localhost/register/confirmation' + token.decode("utf-8")
     # confirm_url = url_for('auth.password_change', token=token, _external=True)
     send_email(user.email, confirm_url)
 

@@ -13,4 +13,5 @@ ENV FLASK_RUN_PORT=5000
 
 RUN ls -lha
 ENTRYPOINT ["python3.8"]
+EXPOSE 5000
 CMD ["run.py"]
