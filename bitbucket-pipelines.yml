@@ -14,7 +14,7 @@ pipelines:
           # Set $DOCKER_HUB_USERNAME and $DOCKER_HUB_PASSWORD as environment variables in repository settings
           # https://think-engineer.com/blog/devops/bitbucket-pipelines-building-publishing-and-re-tagging-docker-images-in-a-ci-cd-workflow
           - export TAG=$(echo "$BITBUCKET_BRANCH" | tr -dc '[:alnum:]\n\r-_' | tr '/*' '_'| tr '[:upper:]' '[:lower:]')
-          - export IMAGE_NAME=docker.io/coorseoadmin/coorseo:$TAG
+          - export IMAGE_NAME=docker.io/coorseoadmin/coorseo-backend:$TAG
 
           # build the Docker image (this will use the Dockerfile in the root of the repo)
           - docker build -t $IMAGE_NAME .
