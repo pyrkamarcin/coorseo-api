@@ -192,6 +192,8 @@ def ratings_create(course_id):
     db_session.add(rating)
     db_session.commit()
 
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+
     return rating_schema.dump(rating)
 
 
@@ -232,6 +234,8 @@ def reviews_create(course_id):
     review = Reviews(user=user, course=course, description=description)
     db_session.add(review)
     db_session.commit()
+
+    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return review_schema.dump(review)
 
