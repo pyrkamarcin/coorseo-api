@@ -192,7 +192,7 @@ def upgrade():
 
     op.create_table('reviews',
                     sa.Column('review_id', postgresql.UUID(), autoincrement=False, nullable=False),
-                    sa.Column('description', sa.VARCHAR(length=20000), autoincrement=False, nullable=False),
+                    sa.Column('description', sa.VARCHAR(length=32768), autoincrement=False, nullable=False),
                     sa.Column('created_on', postgresql.TIMESTAMP(), server_default=sa.text('now()'),
                               autoincrement=False, nullable=True),
                     sa.Column('updated_on', postgresql.TIMESTAMP(), server_default=sa.text('now()'),
