@@ -44,6 +44,7 @@ def create_app():
 
     app.config.from_object('application.config.Config')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.url_map.strict_slashes = False
 
     # client = KafkaClient(hosts="kafka1:19092")
     # app.topic = client.topics['example_topic']
