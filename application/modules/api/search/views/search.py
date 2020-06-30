@@ -21,7 +21,7 @@ mod = Blueprint(
     url_prefix='/api/v1/search'
 )
 
-es = Elasticsearch(hosts=os.environ.get('ES_HOST'))
+es = Elasticsearch(hosts=os.environ.get('ES_HOST'), port=433, use_ssl=True)
 
 course_schema = CoursesSchema()
 courses_schema = CoursesSchema(many=True)

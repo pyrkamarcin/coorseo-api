@@ -9,6 +9,7 @@ sudo docker container run \
     -e SECRET_KEY=HxGIR23yK41si8zd9t9kKTEzQu5IyWetsGzrKtPCe294P4ACyselq4McFarahci \
     -e SESSION_COOKIE_NAME=my_cookie \
     -e FLASK_ENV=production \
+    -e ES_HOST=https://vpc-cso-demo-es-1-isu5bycxkcuq7ngsfd6k4rx62a.eu-central-1.es.amazonaws.com \
     -e TESTING=false \
     -p 5000:5000 \
     -d \
