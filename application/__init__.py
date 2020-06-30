@@ -65,7 +65,7 @@ def create_app():
         app.register_blueprint(publishers.mod)
         app.register_blueprint(profile.mod)
         app.register_blueprint(releaseTypes.mod)
-        app.register_blueprint(search.mod)
+        # app.register_blueprint(search.mod)
         app.register_blueprint(tags.mod)
         app.register_blueprint(agreements.mod)
 
