@@ -10,7 +10,7 @@ sudo docker container run \
     -e SESSION_COOKIE_NAME=my_cookie \
     -e FLASK_ENV=production \
     -e TESTING=false \
-    -p 8080:8080 \
+    -p 5000:5000 \
     -d \
     coorseoadmin/coorseo-backend:develop
 ```

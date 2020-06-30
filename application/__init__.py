@@ -74,6 +74,14 @@ def create_app():
             jti = decrypted_token['jti']
             return jti in blacklist
 
+        @app.before_request
+        def clear_trailing():
+            from flask import redirect, request
+
+            rp = request.path
+            if rp != '/' and rp.endswith('/'):
+                return redirect(rp[:-1])
+
         @app.teardown_request
         def remove_db_session(exception):
             db_session.remove()
