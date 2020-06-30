@@ -83,7 +83,7 @@ def post():
 
     # https://github.com/seek-ai/esengine
     # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvi-full-text-search
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+    # es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     # from flask import current_app
     #
@@ -112,7 +112,7 @@ def update(id):
 
     db_session.commit()
 
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+    # es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return jsonify(course_schema.dump(course))
 
@@ -131,7 +131,7 @@ def add_keyword(course_id):
 
     db_session.commit()
 
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+    # es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return keyword_schema.dump(keyword)
 
@@ -158,7 +158,7 @@ def add_tag(course_id):
     course.tags.append(tag)
     db_session.commit()
 
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+    # es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return jsonify(course_schema.dump(course))
 
@@ -192,7 +192,7 @@ def ratings_create(course_id):
     db_session.add(rating)
     db_session.commit()
 
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+    # es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return rating_schema.dump(rating)
 
@@ -235,7 +235,7 @@ def reviews_create(course_id):
     db_session.add(review)
     db_session.commit()
 
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+    # es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return review_schema.dump(review)
 
@@ -264,6 +264,6 @@ def releases_create(course_id):
 
     db_session.commit()
 
-    es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
+    # es.index(index='courses', doc_type='title', id=course.id, body=json.dumps(course_search_schema.dump(course)))
 
     return release_schema.dump(release)
