@@ -11,7 +11,6 @@ ENV FLASK_DEBUG=1
 ENV FLASK_RUN_HOST=https://api.coorseo.com
 ENV FLASK_RUN_PORT=5000
 
-RUN ls -lha
 ENTRYPOINT ["python3.8"]
 EXPOSE 5000
 CMD ["run.py"]

@@ -21,11 +21,10 @@ services:
       - 1025:1025
       - 8025:8025
 
-  application:
+  backend:
     build: .
     volumes:
       - ./:/coorseo-api/
-    image: coorseoadmin/coorseo:develop
     restart: on-failure
     environment:
       SECRET_KEY: HxGIR23yK41si8zd9t9kKTEzQu5IyWetsGzrKtPCe294P4ACyselq4McFarahci
