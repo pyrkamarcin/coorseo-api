@@ -53,8 +53,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/register",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/register",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -108,8 +108,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/login",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/login",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -160,8 +160,8 @@
 							}
 						],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/logout",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/logout",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -206,8 +206,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/agreements",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/agreements",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -261,8 +261,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/agreements",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/agreements",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -312,8 +312,8 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/user/refresh",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/refresh",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -387,8 +387,8 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}/ratings/",
-									"protocol": "http",
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/ratings/",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{host_name}}"
 									],
@@ -451,8 +451,8 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}/reviews/",
-									"protocol": "http",
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/reviews/",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{host_name}}"
 									],
@@ -496,8 +496,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}/keywords/",
-									"protocol": "http",
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/keywords/",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{host_name}}"
 									],
@@ -554,8 +554,8 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}/keywords/",
-									"protocol": "http",
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/keywords/",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{host_name}}"
 									],
@@ -608,8 +608,8 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}/tag/",
-									"protocol": "http",
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/tag/",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{host_name}}"
 									],
@@ -659,8 +659,8 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}/releases/",
-									"protocol": "http",
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/releases/",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{host_name}}"
 									],
@@ -701,8 +701,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/courses/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -737,8 +737,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -763,7 +763,7 @@
 									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))",
 									"",
 									"const platformRequest = {",
-									"    url: 'http://'+pm.variables.get('host_name')+'/api/v1/platforms/',",
+									"    url: 'https://'+pm.variables.get('host_name')+'/api/v1/platforms/',",
 									"    method: 'POST',",
 									"    header: 'Content-Type:application/json',",
 									"    body: {",
@@ -782,7 +782,7 @@
 									"});",
 									"",
 									"const publisherRequest = {",
-									"    url: 'http://'+pm.variables.get('host_name')+'/api/v1/publishers/',",
+									"    url: 'https://'+pm.variables.get('host_name')+'/api/v1/publishers/',",
 									"    method: 'POST',",
 									"    header: 'Content-Type:application/json',",
 									"    body: {",
@@ -835,8 +835,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/courses/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -928,8 +928,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/courses/{{course_id}}",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -989,8 +989,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/platforms/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/platforms/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1031,8 +1031,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/tags/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/tags/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1090,8 +1090,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/tags/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/tags/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1117,8 +1117,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/release_types/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/release_types/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1176,8 +1176,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/release_types/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/release_types/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1237,8 +1237,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/publishers/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/publishers/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1288,8 +1288,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/search/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/search/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1330,8 +1330,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/agreements/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/agreements/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1398,8 +1398,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/agreements/",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/agreements/",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],
@@ -1466,8 +1466,8 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host_name}}/api/v1/agreements/{{agreements_id}}",
-							"protocol": "http",
+							"raw": "{{protocol}}://{{host_name}}/api/v1/agreements/{{agreements_id}}",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{host_name}}"
 							],

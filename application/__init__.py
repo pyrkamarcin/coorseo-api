@@ -44,6 +44,7 @@ def create_app():
 
     app.config.from_object('application.config.Config')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.url_map.strict_slashes = False
 
     # client = KafkaClient(hosts="kafka1:19092")
     # app.topic = client.topics['example_topic']
@@ -64,7 +65,7 @@ def create_app():
         app.register_blueprint(publishers.mod)
         app.register_blueprint(profile.mod)
         app.register_blueprint(releaseTypes.mod)
-        app.register_blueprint(search.mod)
+        # app.register_blueprint(search.mod)
         app.register_blueprint(tags.mod)
         app.register_blueprint(agreements.mod)
 
@@ -72,6 +73,14 @@ def create_app():
         def check_if_token_in_blacklist(decrypted_token):
             jti = decrypted_token['jti']
             return jti in blacklist
+
+        @app.before_request
+        def clear_trailing():
+            from flask import redirect, request
+
+            rp = request.path
+            if rp != '/' and rp.endswith('/'):
+                return redirect(rp[:-1])
 
         @app.teardown_request
         def remove_db_session(exception):
