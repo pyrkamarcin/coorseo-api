@@ -96,6 +96,7 @@ def upgrade():
 
     op.create_table('users',
                     sa.Column('user_id', postgresql.UUID(), autoincrement=False, nullable=False),
+                    sa.Column('public_id', postgresql.UUID(), autoincrement=False, nullable=False),
                     sa.Column('email', sa.VARCHAR(length=200), autoincrement=False, nullable=False),
                     sa.Column('name', sa.VARCHAR(length=200), autoincrement=False, nullable=False),
                     sa.Column('password', sa.VARCHAR(length=100), autoincrement=False, nullable=True),
@@ -110,6 +111,8 @@ def upgrade():
                     sa.UniqueConstraint('name', name='users_name_key'),
                     postgresql_ignore_search_path=False
                     )
+
+    op.create_index('users_public_id_uindex', 'users', ['public_id'], unique=True)
 
     op.create_table('user_events',
                     sa.Column('user_event_id', postgresql.UUID(), autoincrement=False, nullable=False),

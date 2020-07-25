@@ -161,8 +161,8 @@ def login():
         db_session.add(user_event)
 
         # https://flask-jwt-extended.readthedocs.io/en/stable/add_custom_data_claims/
-        access_token = create_access_token(identity=username)
-        refresh_token = create_refresh_token(identity=username)
+        access_token = create_access_token(identity=user.public_id)
+        refresh_token = create_refresh_token(identity=user.public_id)
 
         user_event = UserEvents(user, "generated tokens",
                                 {"access_token": access_token, "refresh_token": refresh_token})
@@ -342,7 +342,7 @@ def add_agreements():
 
     current_user = get_jwt_identity()
 
-    user = Users.query.filter_by(name=current_user).first()
+    user = Users.query.filter_by(public_id=current_user).first()
     agreement = Agreements.query.filter_by(id=agreement_id).first()
 
     existing_user_agreements = UserAgreements.query.filter_by(user=user, agreement=agreement).first()
@@ -363,7 +363,7 @@ def add_agreements():
 def get_agreements():
     current_user = get_jwt_identity()
 
-    user = Users.query.filter_by(name=current_user).first()
+    user = Users.query.filter_by(public_id=current_user).first()
     user_agreements = UserAgreements.query.filter_by(user=user).order_by("created_on").all()
 
     return jsonify(user_agreements_schema.dump(user_agreements, many=True))
