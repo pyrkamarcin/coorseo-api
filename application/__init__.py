@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function
 
 from flask import (Flask, g)
-from flask_jwt_extended import JWTManager, jwt_required, get_raw_jwt
+from flask_jwt_extended import JWTManager, jwt_required, get_raw_jwt, get_jwt_claims
 from flask_uuid import FlaskUUID
 
 from flask import jsonify
@@ -69,6 +69,12 @@ def create_app():
         app.register_blueprint(tags.mod)
         app.register_blueprint(agreements.mod)
 
+        @jwt.user_claims_loader
+        def add_claims_to_access_token(identity):
+            return {
+                'public_id': identity
+            }
+
         @jwt.token_in_blacklist_loader
         def check_if_token_in_blacklist(decrypted_token):
             jti = decrypted_token['jti']
@@ -94,7 +100,9 @@ def create_app():
             return jsonify({"msg": "Successfully logged out"}), 200
 
         @app.route('/test', methods=['GET', 'POST'])
+        @jwt_required
         def test():
-            return jsonify({"msg": "OK!"}), 200
+            claims = get_jwt_claims()
+            return jsonify({"msg": claims}), 200
 
     return app

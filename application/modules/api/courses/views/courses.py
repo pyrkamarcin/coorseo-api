@@ -186,7 +186,7 @@ def ratings_create(course_id):
     course = Courses.query.get(course_id)
 
     current_user = get_jwt_identity()
-    user = Users.query.filter_by(name=current_user).first()
+    user = Users.query.filter_by(public_id=current_user).first()
 
     rating = Ratings(user=user, course=course, points=points)
     db_session.add(rating)
@@ -229,7 +229,7 @@ def reviews_create(course_id):
 
     current_user = get_jwt_identity()
 
-    user = Users.query.filter_by(name=current_user).first()
+    user = Users.query.filter_by(public_id=current_user).first()
 
     review = Reviews(user=user, course=course, description=description)
     db_session.add(review)
