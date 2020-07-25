@@ -9,7 +9,6 @@ from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from passlib.hash import sha256_crypt
 
-
 from application.shared.models import db_session, model, engine
 
 
@@ -19,6 +18,7 @@ class Users(model):
     __tablename__ = 'users'
 
     id = Column('user_id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    public_id = Column('public_id', UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)
 
     email = Column(String(200), unique=True, nullable=False)
     name = Column(String(200), unique=True, nullable=False)
