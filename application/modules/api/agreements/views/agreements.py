@@ -34,6 +34,7 @@ def post():
     agreement = Agreements(title)
     agreement.description = request.json['description']
     agreement.body = request.json['body']
+    agreement.is_required = request.json['is_required']
     agreement.valid_from = request.json['valid_from']
     agreement.valid_to = request.json['valid_to']
 
@@ -48,6 +49,7 @@ def update(id):
     agreement.title = request.json.get('title', agreement.title)
     agreement.description = request.json.get('description', agreement.description)
     agreement.body = request.json.get('body', agreement.body)
+    agreement.is_required = request.json.get('is_required', agreement.is_required)
     agreement.valid_from = request.json.get('valid_from', agreement.valid_from)
     agreement.valid_to = request.json.get('valid_to', agreement.valid_to)
     agreement.is_active = request.json.get('is_active', agreement.is_active)
