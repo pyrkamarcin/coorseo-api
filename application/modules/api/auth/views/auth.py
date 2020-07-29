@@ -25,8 +25,9 @@ from application.models.usersSchema import UsersSchema
 
 from application.models.userEvents import UserEvents
 from application.models.userAgreements import UserAgreements
-from application.models.agreements import Agreements
 from application.models.userAgreementsSchema import UserAgreementsSchema
+from application.models.agreements import Agreements
+from application.models.agreementsSchema import AgreementsSchema
 
 from application.models.users import Users
 
@@ -71,6 +72,7 @@ def generate_confirmation_token(email):
 
 user_schema = UsersSchema()
 user_agreements_schema = UserAgreementsSchema()
+agreements_schema = AgreementsSchema()
 
 
 @auth.errorhandler(UserExistException)
@@ -367,3 +369,15 @@ def get_agreements():
     user_agreements = UserAgreements.query.filter_by(user=user).order_by("created_on").all()
 
     return jsonify(user_agreements_schema.dump(user_agreements, many=True))
+
+@auth.route('/agreements/mandatory', methods=['GET'])
+@jwt_required
+def get_mandatory_agreements():
+    current_user = get_jwt_identity()
+
+    user = Users.query.filter_by(public_id=current_user).first()
+    user_agreements = UserAgreements.query.filter_by(user=user).order_by("created_on").all()
+
+    agreements = Agreements.query.filter_by(is_required=True)
+
+    return jsonify(agreements_schema.dump(agreements, many=True))
