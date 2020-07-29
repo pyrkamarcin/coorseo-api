@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: Publish Front to Registry
+      - name: Publish Application to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: coorseoadmin/coorseo-backend
