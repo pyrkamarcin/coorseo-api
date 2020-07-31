@@ -6,6 +6,8 @@ trigger:
 - master
 - develop
 
+pool: test
+
 resources:
 - repo: self
 
