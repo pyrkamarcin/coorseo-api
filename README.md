@@ -1,7 +1,5 @@
 # coorseo-api
 
-## Użycie `docker-compose`
-
 ### Pierwsze uruchomienie
 
 #### Pobranie obrazów:
