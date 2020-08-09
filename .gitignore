@@ -4,3 +4,4 @@ views/__pycache__/
 __pycache__/
 .env
 /zk-single-kafka-single/
+.vscode
