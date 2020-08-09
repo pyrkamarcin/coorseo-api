@@ -1,0 +1,1599 @@
+{
+	"info": {
+		"_postman_id": "a144753e-109d-46aa-b18e-d262a776b69f",
+		"name": "coorseo-backend-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Użytkownik",
+			"item": [
+				{
+					"name": "Rejestracja",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f30cb90e-c205-4c1f-ae58-59d3c7d860eb",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b46a720d-27af-4d2e-a2c7-c392881054b3",
+								"exec": [
+									"const random_number = _.random(1000000, 2000000);",
+									"const username = \"user+\" + random_number;",
+									"const email = \"user+\" + random_number + \"@example.com\";",
+									"",
+									"pm.environment.set(\"username\", username);",
+									"pm.environment.set(\"email\", email);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email}}\",\n    \"username\": \"{{username}}\",\n    \"password\": \"Test1234!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/register",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"register"
+							]
+						},
+						"description": "\t"
+					},
+					"response": []
+				},
+				{
+					"name": "Ponowne wysłanie potwierdzenia",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "fba44e08-ce5f-4e35-8527-edb32912d3bc",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5131b4f7-d436-4e85-a073-11ef7649b284",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email}}\",\n    \"username\": \"{{username}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/resend_confirmation",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"resend_confirmation"
+							]
+						},
+						"description": "\t"
+					},
+					"response": []
+				},
+				{
+					"name": "Logowanie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "065f1596-a372-497c-a45a-dd4209c89006",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"access_token goes to env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});",
+									"",
+									"pm.test(\"refresh_token goes to env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"refresh_token\", jsonData.refresh_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"Test1234!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/login",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Wylogowanie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "03b29cc4-9d80-425b-9ac8-43f594234f7f",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJQUzUxMiJ9.eyJpYXQiOjE1ODc5OTM5NDYsIm5iZiI6MTU4Nzk5Mzk0NiwianRpIjoiMWZlYzZiZDAtNmNhZC00YzEzLWE0NzMtYzFmYWYyYTFlNDY4IiwiZXhwIjoxNTg3OTk0ODQ2LCJpZGVudGl0eSI6InVzZXIrMTgiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.e-qYWARNjK5NtqDXuQ0ze9G26M6v126bvdS94Sx_-fFyadJYXvWT4L7CnoR-UMMYgT6hy8yBCZdXNyyj0WIe45XCwb1_Uj-IeEH_qiF_g3x7aEUUwX4a8BxU4cYZhAFhfLnOVGE4PbD8jvQi2pH4IseZobcE7tStAJ9hks8qHoGDTVlwUym0bfKSqtujXZ-J8YvoCtqU65cpyQdLrDMPIJCl9udw3ve1gBZs6XB2CrKKRVO1yxguU03hdoVl0qIM_ETF0Yssr0WRg6ndHY9KPP12VzktV9jOB53gqQH5ebGtIjEa3GTcmc9mBHIAaopP3wCLRsiF9IVDN_cjzBCOR4CYJvedUYwyNb_aylDbpSQdrANEpJ7ZU6XmMXyj6v7_w1iUCHdLvYVi-tneKUGRtpZsg_8z4Z6Y78hBXdPrn_MxIyu--Y5AXGEvEMjVpRSzeVnb6cS1pvSRdwWy0WtoQleFttU9QqwfmrAeJo3PZllmtfGHvrq4WAS1xWynWVkDfKHh50MlM4KDJmp6tQZe8S8QzoKmbPa_ZSyF79D2lCiLpxCGhnrwTFteGYC_QKwF84eV8ms2TriS6hcMFcTSXmF5xmQ6yTZIxCHQxzUqwZCaPBzSLFNZrqcKBk0UVf9xJYjv-Evkzt-bTqMxrGCpQdcNAyqozLjzF7AsnpLIx0k",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/logout",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lista zgód",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "15dae4bb-86c4-4782-9de9-f2053586218a",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/agreements",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"agreements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Zmiana hasła",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/password",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Akceptacja zgody",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7e014b10-79e7-4346-956c-573ed409eaeb",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agreement_id\": \"{{agreements_id}}\",\n    \"is_accepted\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/agreements",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"agreements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Odnowienie kluczy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a9d8da76-f586-444e-b766-f7183e9e2eb3",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"access_token goes to env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{refresh_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/refresh",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Potwierdzenie rejestracji",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/user/confirmation/eyJhbGciOiJIUzUxMiIsImlhdCI6MTU5NTcwOTQ1MiwiZXhwIjoxNTk1NzEzMDUyfQ.InVzZXIrMTAxMzAxNUBleGFtcGxlLmNvbSI.5tdwDkiFirUujh2vfjF19pRnGNdLNnQBis0hLK4gGxf-UlynDNLz3KXF9HDwlRgfdZVnoJIhzCkzsUUtK4yZGw",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"confirmation",
+								"eyJhbGciOiJIUzUxMiIsImlhdCI6MTU5NTcwOTQ1MiwiZXhwIjoxNTk1NzEzMDUyfQ.InVzZXIrMTAxMzAxNUBleGFtcGxlLmNvbSI.5tdwDkiFirUujh2vfjF19pRnGNdLNnQBis0hLK4gGxf-UlynDNLz3KXF9HDwlRgfdZVnoJIhzCkzsUUtK4yZGw"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Kursy",
+			"item": [
+				{
+					"name": "Oceny",
+					"item": [
+						{
+							"name": "Dodaj ocenę",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "8ff15fe9-5160-49ef-b564-b6df123488a2",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "465c4c4c-baa7-452d-9dca-35d4266578b0",
+										"exec": [
+											"pm.environment.set(\"random_points\", _.random(1, 5))",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"points\": {{random_points}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/ratings/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host_name}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"courses",
+										"{{course_id}}",
+										"ratings",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Opinie",
+					"item": [
+						{
+							"name": "Dodaj opinię",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "19c396da-c14c-4c98-9a36-98c6f6217c58",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"description\": \"test text\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/reviews/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host_name}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"courses",
+										"{{course_id}}",
+										"reviews",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Słowa kluczowe",
+					"item": [
+						{
+							"name": "Lista słów kluczowych",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4b9fbe4c-b02c-4835-bc71-3efe94da0d11",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/keywords/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host_name}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"courses",
+										"{{course_id}}",
+										"keywords",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Dodaj słowo kluczowe",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "d3067aa0-8a8d-436a-9c0b-c1332fe9ff04",
+										"exec": [
+											"pm.environment.set(\"random_number\", _.random(1000000, 2000000))",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "3d83ba46-129b-40ee-8a27-4fdc3248f153",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"keyword {{random_number}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/keywords/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host_name}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"courses",
+										"{{course_id}}",
+										"keywords",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Tagi",
+					"item": [
+						{
+							"name": "Dodaj tag",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "efb81b53-2075-4808-99e7-241aaf420983",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"tag_id\": \"{{tag_id}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/tag/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host_name}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"courses",
+										"{{course_id}}",
+										"tag",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Wydania",
+					"item": [
+						{
+							"name": "Dodaj wydanie do kursu",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "362dfe61-88f1-4629-9d9f-0c95a7b30385",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test\",\n    \"description\": \"test\",\n    \"release_type_id\": \"{{release_types_id}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}/releases/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host_name}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"courses",
+										"{{course_id}}",
+										"releases",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Pokaż wszystkie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f0150f8f-fedb-4e95-b403-2a8ef6522b21",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pokaż wybrany",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "003164ad-cd68-4936-a94e-db83a5a92cbb",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								"{{course_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dodaj nowy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "21e01862-9c36-4bd8-90ab-d00cc849f142",
+								"exec": [
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))",
+									"",
+									"const platformRequest = {",
+									"    url: 'https://'+pm.variables.get('host_name')+'/api/v1/platforms/',",
+									"    method: 'POST',",
+									"    header: 'Content-Type:application/json',",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({name: \"platform \"+ pm.variables.get('random_number')})",
+									"    }  ",
+									"};",
+									"",
+									"pm.sendRequest(platformRequest, function (err, res) {",
+									"    if (err) { ",
+									"        console.log(err); ",
+									"    } else {",
+									"        const data = res.json();",
+									"        pm.environment.set(\"platform_id\", data.id);",
+									"    }",
+									"});",
+									"",
+									"const publisherRequest = {",
+									"    url: 'https://'+pm.variables.get('host_name')+'/api/v1/publishers/',",
+									"    method: 'POST',",
+									"    header: 'Content-Type:application/json',",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({name: \"publisher \"+ pm.variables.get('random_number')})",
+									"    }  ",
+									"};",
+									"",
+									"pm.sendRequest(publisherRequest, function (err, res) {",
+									"    if (err) { ",
+									"        console.log(err); ",
+									"    } else {",
+									"        const data = res.json();",
+									"        pm.environment.set(\"publisher_id\", data.id);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "240cc1b8-667c-49f2-b73f-307fa1732272",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"course_id goes to env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"course_id\", jsonData.id);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"platform\": \"{{platform_id}}\",\n    \"publisher\": \"{{publisher_id}}\",\n    \"name\": \"kurs {{random_number}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edytuj kurs",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9903aae2-a6cc-4779-8afe-fae08cedd09c",
+								"exec": [
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))",
+									"",
+									"const platformRequest = {",
+									"    url: 'http://'+pm.variables.get('host_name')+'/api/v1/platforms/',",
+									"    method: 'POST',",
+									"    header: 'Content-Type:application/json',",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({name: \"platform \"+ pm.variables.get('random_number')})",
+									"    }  ",
+									"};",
+									"",
+									"pm.sendRequest(platformRequest, function (err, res) {",
+									"    if (err) { ",
+									"        console.log(err); ",
+									"    } else {",
+									"        const data = res.json();",
+									"        pm.environment.set(\"platform_id\", data.id);",
+									"    }",
+									"});",
+									"",
+									"const publisherRequest = {",
+									"    url: 'http://'+pm.variables.get('host_name')+'/api/v1/publishers/',",
+									"    method: 'POST',",
+									"    header: 'Content-Type:application/json',",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({name: \"publisher \"+ pm.variables.get('random_number')})",
+									"    }  ",
+									"};",
+									"",
+									"pm.sendRequest(publisherRequest, function (err, res) {",
+									"    if (err) { ",
+									"        console.log(err); ",
+									"    } else {",
+									"        const data = res.json();",
+									"        pm.environment.set(\"publisher_id\", data.id);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "d580768d-aaea-4b9c-9451-81d6a5ae6893",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"kurs jakiś nowszy {{random_number}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/courses/{{course_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								"{{course_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Platformy",
+			"item": [
+				{
+					"name": "Dodaj nową",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "183dae49-cebc-412e-b6f8-6f47363a931b",
+								"exec": [
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "8ec3d654-64fc-4b15-9a66-37aa53fa99e8",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"platforma {{random_number}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/platforms/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"platforms",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Tagi",
+			"item": [
+				{
+					"name": "Pokaż wszystkie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7d92df37-bfd2-4b20-86aa-5c098fb48a12",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/tags/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tags",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dodaj",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4e3fb91a-9bbe-40b7-b4b5-ef287c973545",
+								"exec": [
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "1c5fff8f-1800-468b-8175-5c024f498f7c",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"tag_id goes to env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"tag_id\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"tag {{random_number}}\",\n    \"description\": \"description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/tags/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tags",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Typy wydań",
+			"item": [
+				{
+					"name": "Lista wszystkich",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/release_types/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"release_types",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dodaj",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3332eb85-5f80-412a-a400-f24d14751972",
+								"exec": [
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "fac37d82-f078-401c-b6a3-a0b8ea3fe364",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"save release types id in env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"release_types_id\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"typ {{random_number}}\",\n    \"description\": \"super typ, podobny do kursy stacjonarnego, ale lepszy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/release_types/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"release_types",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Wydawcy",
+			"item": [
+				{
+					"name": "Dodaj nowego",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "317c03c9-678f-4128-8686-e5cf4e58368c",
+								"exec": [
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "df5c8dc8-d3fc-4d9e-805d-2f50fa87004f",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"wydawca {{random_number}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/publishers/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"publishers",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Wyszukiwanie",
+			"item": [
+				{
+					"name": "Wyszukaj",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b32b7b2e-4891-4d14-bfab-484270ab1f40",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"keyword\": \"kurs\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/search/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"search",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Zgody",
+			"item": [
+				{
+					"name": "Pokaż wszystkie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1e9fdb86-3f6f-4795-b0ee-e96e83c1d1e3",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/agreements/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"agreements",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dodaj",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "28b8a03c-32dc-4a2b-bfc9-729f8b1ee01f",
+								"exec": [
+									"const date= new Date();",
+									"",
+									"const dateNow= new Date();",
+									"const dateTomorow = new Date(date.setTime( date.getTime() +  86400000 ));",
+									"",
+									"pm.environment.set('current_date', dateNow.toISOString());",
+									"pm.environment.set('future_date', dateTomorow.toISOString());",
+									"",
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "b39cbecc-6902-4746-a347-29bac817580f",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"save agreements id in env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"agreements_id\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"tytuł zgody {{random_number}}\",\n    \"description\": \"opis zgody {{random_number}}\",\n    \"body\": \"testowy tekst\",\n    \"valid_from\": \"{{current_date}}\",\n    \"valid_to\": \"{{future_date}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/agreements",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"agreements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edytuj",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "df01fcc1-23c1-4576-ab02-f327ead2fa21",
+								"exec": [
+									"const date= new Date();",
+									"",
+									"const dateNow= new Date();",
+									"const dateTomorow = new Date(date.setTime( date.getTime() +  86400000 ));",
+									"",
+									"pm.environment.set('current_date', dateNow.toISOString());",
+									"pm.environment.set('future_date', dateTomorow.toISOString());",
+									"",
+									"pm.environment.set(\"random_number\", _.random(1000000, 2000000));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "55172857-23ae-4fd4-90cc-58adcf3ef0b9",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"save agreements id in env\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"last_agreements_id\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"tytuł zgody {{random_number}}\",\n    \"description\": \"opis zgody {{random_number}}\",\n    \"body\": \"testowy tekst\",\n    \"valid_from\": \"{{current_date}}\",\n    \"valid_to\": \"{{future_date}}\",\n    \"is_active\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host_name}}/api/v1/agreements/{{agreements_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host_name}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"agreements",
+								"{{agreements_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"auth": {
+		"type": "bearer"
+	},
+	"protocolProfileBehavior": {}
+}
