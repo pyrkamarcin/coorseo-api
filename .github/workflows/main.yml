@@ -15,10 +15,11 @@ jobs:
       - name: Publish Application to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: coorseoadmin/coorseo-backend
+          name: jetalone/coorseo-api
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           context: .
           dockerfile: Dockerfile
           snapshot: true
           tag_names: true
+          
